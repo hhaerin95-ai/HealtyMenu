@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Recommendations - Healthy Menu System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-links a.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        /* BMI Status Card */
+        .bmi-status {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .bmi-info {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .bmi-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .bmi-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .bmi-cat {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .recalculate-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .recalculate-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+        }
+
+        /* Menu Grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .menu-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .menu-content {
+            padding: 1.5rem;
+        }
+
+        .menu-meal-type {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #f0f4ff;
+            color: #667eea;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .nutrition-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nutrition-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+
+        .nutrition-label {
+            color: #666;
+        }
+
+        .nutrition-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* No BMI Message */
+        .no-bmi-message {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .no-bmi-message h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        .no-bmi-message p {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .no-bmi-message button {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .no-bmi-message button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .bmi-status {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .bmi-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">🥗 HealthyMenu</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="bmicalculator.html">BMI Calculator</a></li>
+                <li><a href="menu.html" class="active">Menu</a></li>
+                <li><a href="food-records.html">My Records</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <h1 class="page-title">Healthy Menu Recommendations</h1>
+        <p class="page-subtitle">Personalized meal suggestions based on your BMI</p>
+
+        <!-- Content will be loaded dynamically -->
+        <div id="content-area"></div>
+    </div>
+
+    <script>
+        // Get BMI from sessionStorage
+        const userBMI = sessionStorage.getItem('userBMI');
+
+        // Sample menu data (In real project, this would come from API or database)
+        const menuData = {
+            breakfast: [
+                {
+                    name: "Oatmeal with Fruits",
+                    description: "Nutritious oatmeal topped with fresh berries and banana slices",
+                    emoji: "🥣",
+                    calories: 350,
+                    carbs: 58,
+                    protein: 12,
+                    fat: 8,
+                    suitable: ["normal", "overweight", "obese"]
+                },
+                {
+                    name: "Scrambled Eggs & Toast",
+                    description: "Protein-rich scrambled eggs with whole wheat toast",
+                    emoji: "🍳",
+                    calories: 280,
+                    carbs: 24,
+                    protein: 18,
+                    fat: 12,
+                    suitable: ["underweight", "normal"]
+                },
+                {
+                    name: "Greek Yogurt Bowl",
+                    description: "Low-fat Greek yogurt with granola and honey",
+                    emoji: "🥛",
+                    calories: 220,
+                    carbs: 32,
+                    protein: 15,
+                    fat: 4,
+                    suitable: ["normal", "overweight", "obese"]
+                }
+            ],
+            lunch: [
+                {
+                    name: "Grilled Chicken Salad",
+                    description: "Fresh garden salad with grilled chicken breast",
+                    emoji: "🥗",
+                    calories: 420,
+                    carbs: 28,
+                    protein: 42,
+                    fat: 14,
+                    suitable: ["normal", "overweight", "obese"]
+                },
+                {
+                    name: "Brown Rice & Vegetables",
+                    description: "Steamed vegetables with brown rice and tofu",
+                    emoji: "🍚",
+                    calories: 380,
+                    carbs: 62,
+                    protein: 12,
+                    fat: 8,
+                    suitable: ["normal", "overweight", "obese"]
+                },
+                {
+                    name: "Salmon with Quinoa",
+                    description: "Baked salmon fillet with quinoa and asparagus",
+                    emoji: "🐟",
+                    calories: 520,
+                    carbs: 45,
+                    protein: 38,
+                    fat: 18,
+                    suitable: ["underweight", "normal"]
+                }
+            ],
+            dinner: [
+                {
+                    name: "Vegetable Soup",
+                    description: "Light and healthy vegetable soup with whole grain bread",
+                    emoji: "🍲",
+                    calories: 280,
+                    carbs: 42,
+                    protein: 10,
+                    fat: 6,
+                    suitable: ["normal", "overweight", "obese"]
+                },
+                {
+                    name: "Grilled Fish & Salad",
+                    description: "Grilled white fish with mixed green salad",
+                    emoji: "🐠",
+                    calories: 320,
+                    carbs: 18,
+                    protein: 35,
+                    fat: 12,
+                    suitable: ["normal", "overweight", "obese"]
+                },
+                {
+                    name: "Stir-Fry Chicken",
+                    description: "Chicken stir-fry with colorful vegetables",
+                    emoji: "🍗",
+                    calories: 450,
+                    carbs: 35,
+                    protein: 38,
+                    fat: 16,
+                    suitable: ["underweight", "normal", "overweight"]
+                }
+            ]
+        };
+
+        function getBMICategory(bmi) {
+            if (bmi < 18.5) return "underweight";
+            if (bmi < 25) return "normal";
+            if (bmi < 30) return "overweight";
+            return "obese";
+        }
+
+        function getBMICategoryName(category) {
+            const names = {
+                underweight: "Underweight",
+                normal: "Normal Weight",
+                overweight: "Overweight",
+                obese: "Obese"
+            };
+            return names[category];
+        }
+
+        function displayContent() {
+            const contentArea = document.getElementById('content-area');
+
+            if (!userBMI) {
+                // Show message if no BMI calculated
+                contentArea.innerHTML = `
+                    <div class="no-bmi-message">
+                        <h2>Calculate Your BMI First</h2>
+                        <p>Please calculate your BMI to get personalized menu recommendations</p>
+                        <button onclick="window.location.href='bmi-calculator.html'">Go to BMI Calculator</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const bmi = parseFloat(userBMI);
+            const category = getBMICategory(bmi);
+            const categoryName = getBMICategoryName(category);
+
+            // Display BMI status
+            let bmiColor = '#667eea';
+            if (category === 'underweight') bmiColor = '#3b82f6';
+            if (category === 'normal') bmiColor = '#10b981';
+            if (category === 'overweight') bmiColor = '#f59e0b';
+            if (category === 'obese') bmiColor = '#ef4444';
+
+            contentArea.innerHTML = `
+                <div class="bmi-status">
+                    <div class="bmi-info">
+                        <div>
+                            <div class="bmi-label">Your BMI</div>
+                            <div class="bmi-number" style="color: ${bmiColor}">${bmi.toFixed(1)}</div>
+                        </div>
+                        <div>
+                            <div class="bmi-label">Category</div>
+                            <div class="bmi-cat" style="color: ${bmiColor}">${categoryName}</div>
+                        </div>
+                    </div>
+                    <button class="recalculate-btn" onclick="window.location.href='bmi-calculator.html'">Recalculate BMI</button>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-title">Filter by Meal Type</div>
+                    <div class="filter-options">
+                        <button class="filter-btn active" onclick="filterMeals('all')">All Meals</button>
+                        <button class="filter-btn" onclick="filterMeals('breakfast')">Breakfast</button>
+                        <button class="filter-btn" onclick="filterMeals('lunch')">Lunch</button>
+                        <button class="filter-btn" onclick="filterMeals('dinner')">Dinner</button>
+                    </div>
+                </div>
+
+                <div class="menu-grid" id="menu-grid"></div>
+            `;
+
+            displayMenus('all', category);
+        }
+
+        function filterMeals(type) {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const bmi = parseFloat(userBMI);
+            const category = getBMICategory(bmi);
+            displayMenus(type, category);
+        }
+
+        function displayMenus(mealType, userCategory) {
+            const menuGrid = document.getElementById('menu-grid');
+            let menusToShow = [];
+
+            if (mealType === 'all') {
+                Object.keys(menuData).forEach(type => {
+                    menuData[type].forEach(menu => {
+                        if (menu.suitable.includes(userCategory)) {
+                            menusToShow.push({...menu, type: type});
+                        }
+                    });
+                });
+            } else {
+                menuData[mealType].forEach(menu => {
+                    if (menu.suitable.includes(userCategory)) {
+                        menusToShow.push({...menu, type: mealType});
+                    }
+                });
+            }
+
+            menuGrid.innerHTML = menusToShow.map(menu => `
+                <div class="menu-card">
+                    <div class="menu-image">${menu.emoji}</div>
+                    <div class="menu-content">
+                        <span class="menu-meal-type">${menu.type.charAt(0).toUpperCase() + menu.type.slice(1)}</span>
+                        <h3 class="menu-title">${menu.name}</h3>
+                        <p class="menu-description">${menu.description}</p>
+                        <div class="nutrition-info">
+                            <div class="nutrition-item">
+                                <span class="nutrition-label">Calories:</span>
+                                <span class="nutrition-value">${menu.calories} kcal</span>
+                            </div>
+                            <div class="nutrition-item">
+                                <span class="nutrition-label">Carbs:</span>
+                                <span class="nutrition-value">${menu.carbs}g</span>
+                            </div>
+                            <div class="nutrition-item">
+                                <span class="nutrition-label">Protein:</span>
+                                <span class="nutrition-value">${menu.protein}g</span>
+                            </div>
+                            <div class="nutrition-item">
+                                <span class="nutrition-label">Fat:</span>
+                                <span class="nutrition-value">${menu.fat}g</span>
+                            </div>
+                        </div>
+                        <button class="add-btn" onclick="addToRecord('${menu.name}', '${menu.type}')">Add to My Records</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToRecord(menuName, mealType) {
+            alert(`"${menuName}" has been added to your food records!`);
+            // In real project, this would save to database via PHP
+        }
+
+        // Initialize page
+        displayContent();
+    </script>
+</body>
+</html>
