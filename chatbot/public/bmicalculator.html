@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BMI Calculator - Healthy Menu System</title>
+    <title>Menu Recommendations - Healthy Menu System</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -34,726 +30,896 @@
             align-items: center;
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
+        .logo { font-size: 1.5rem; font-weight: bold; color: #667eea; }
+
+        .menu-toggle { display: none; font-size: 26px; cursor: pointer; color: #667eea; }
+
+        .nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; }
+        .nav-links a { text-decoration: none; color: #333; font-weight: 500; transition: color 0.3s ease; }
+        .nav-links a:hover { color: #667eea; }
+        .nav-links a.active { color: #667eea; font-weight: 600; }
+
+        .logout-btn {
+            background: #fff; color: #e74c3c; border: 2px solid #e74c3c;
+            padding: 6px 16px; border-radius: 999px; font-weight: 600;
+            cursor: pointer; transition: all 0.25s ease;
+        }
+        .logout-btn:hover { background: #e74c3c; color: white; transform: translateY(-1px); }
+
+        .container { max-width: 1200px; margin: 3rem auto; padding: 2rem; }
+
+        .page-title { text-align: center; color: white; font-size: 2.5rem; margin-bottom: 1rem; }
+        .page-subtitle { text-align: center; color: rgba(255,255,255,0.9); font-size: 1.1rem; margin-bottom: 3rem; }
+
+        .bmi-status-card {
+            background: white; border-radius: 15px; padding: 2rem; margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;
         }
 
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
+        .bmi-info-item { text-align: center; }
+        .bmi-label { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .bmi-value { font-size: 2.5rem; font-weight: bold; color: #667eea; margin-bottom: 0.3rem; }
+        .bmi-category { font-size: 1.2rem; font-weight: 600; color: #333; }
+
+        .calorie-progress { margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #f0f0f0; }
+        .calorie-bar { width: 100%; height: 30px; background: #f0f0f0; border-radius: 15px; overflow: hidden; margin-top: 0.5rem; }
+        .calorie-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            transition: width 0.5s ease, background 0.3s ease;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 600; font-size: 0.9rem;
+        }
+        .calorie-fill.warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .calorie-fill.danger  { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .calorie-stats { display: flex; justify-content: space-between; margin-top: 0.8rem; font-size: 0.95rem; }
+        .calorie-stats span { color: #666; }
+        .calorie-stats strong { color: #333; }
+
+        .calorie-warning {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #ef4444; color: #991b1b;
+            padding: 1.5rem; border-radius: 15px; margin-bottom: 2rem;
+            display: none; align-items: center; gap: 1rem;
+            box-shadow: 0 5px 20px rgba(239,68,68,0.2);
+            animation: shake 0.5s ease;
+        }
+        .calorie-warning.show { display: flex; }
+        .calorie-warning-icon { font-size: 2.5rem; }
+        .calorie-warning-text { flex: 1; }
+        .calorie-warning-text h3 { font-size: 1.3rem; margin-bottom: 0.3rem; }
+        .calorie-warning-text p  { font-size: 0.95rem; opacity: 0.9; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
         }
 
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
+        .filter-section {
+            background: white; border-radius: 15px; padding: 1.5rem;
+            margin-bottom: 2rem; box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
 
-        .nav-links a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
+        .filter-title { font-size: 1.1rem; font-weight: 600; color: #333; margin-bottom: 1rem; }
 
-        .nav-links a:hover {
-            color: #667eea;
-        }
-
-        .nav-links a.active {
-            color: #667eea;
-            font-weight: 600;
-        }
-
-        .lang-toggle {
-            padding: 8px 16px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .lang-toggle:hover {
-            background: #764ba2;
-            transform: translateY(-2px);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 3rem auto;
-            padding: 2rem;
-        }
-
-        .page-title {
-            text-align: center;
-            color: white;
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .calculator-wrapper {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 3rem;
-            flex-wrap: wrap;
-        }
-
-        .calculator-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2.5rem;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 500px;
-        }
-
-        .calculator-card h2 {
-            color: #667eea;
-            margin-bottom: 2rem;
-            font-size: 1.8rem;
-        }
-
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            color: #555;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            font-size: 0.95rem;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .unit-selector {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .unit-option {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            color: #666;
-        }
-
-        .unit-option.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        .calculate-btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            margin-top: 1rem;
-        }
-
-        .calculate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .result-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2.5rem;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 500px;
-            display: none;
-        }
-
-        .result-card.visible {
-            display: block;
-        }
-
-        .result-card h2 {
-            color: #667eea;
-            margin-bottom: 2rem;
-            font-size: 1.8rem;
-        }
-
-        .bmi-display {
-            text-align: center;
-            padding: 2rem;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
-            border-radius: 15px;
-            margin-bottom: 2rem;
-        }
-
-        .bmi-value {
-            font-size: 4rem;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 0.5rem;
-        }
-
-        .bmi-category {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .bmi-description {
-            color: #666;
-            font-size: 1rem;
-        }
-
-        .bmi-chart {
-            margin-top: 2rem;
-        }
-
-        .bmi-chart h3 {
-            color: #333;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-        }
-
-        .chart-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 15px;
-            margin-bottom: 0.5rem;
-            border-radius: 8px;
-            background: #f8f9fa;
-            font-size: 0.95rem;
-        }
-
-        .chart-item.highlight {
-            background: #667eea;
-            color: white;
-            font-weight: 600;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .btn-secondary {
-            flex: 1;
-            padding: 12px;
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary {
-            flex: 1;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .info-section {
-            background: white;
-            border-radius: 20px;
-            padding: 2.5rem;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .info-section h2 {
-            color: #667eea;
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
-        }
-
-        .info-section p {
-            color: #555;
-            line-height: 1.8;
+        .filter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
             margin-bottom: 1rem;
         }
 
-        .menu-toggle {
-            display: none;
-            font-size: 26px;
-            cursor: pointer;
-            color: #667eea;
+        .filter-group label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
         }
+
+        .filter-group select {
+            width: 100%; padding: 12px;
+            border: 2px solid #e0e0e0; border-radius: 8px;
+            font-size: 1rem; transition: border-color 0.3s ease; background: white;
+        }
+        .filter-group select:focus { outline: none; border-color: #667eea; }
+
+        .cuisine-toggle { display: flex; gap: 0.5rem; }
+
+        .cuisine-btn {
+            flex: 1;
+            padding: 11px 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        .cuisine-btn:hover { border-color: #667eea; color: #667eea; }
+
+        .cuisine-btn.active-all {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: #667eea; color: white;
+        }
+        .cuisine-btn.active-local {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border-color: #d4a017; color: #7a5c00;
+        }
+        .cuisine-btn.active-western {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border-color: #2563eb; color: #1e3a8a;
+        }
+
+        .filter-section input {
+            width: 100%; padding: 12px;
+            border: 2px solid #e0e0e0; border-radius: 8px;
+            font-size: 1rem; transition: border-color 0.3s ease;
+        }
+        .filter-section input:focus { outline: none; border-color: #667eea; }
+
+        #menu-container { margin-top: 1rem; }
+
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; }
+
+        .menu-card {
+            background: white; border-radius: 15px; overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .menu-card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
+
+        .menu-image { width: 100%; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; }
+        .menu-image img { width: 100%; height: 100%; object-fit: cover; }
+
+        .menu-content { padding: 1.5rem; }
+
+        .menu-meal-type {
+            display: inline-block; padding: 5px 12px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600; margin-bottom: 0.8rem;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge-breakfast { background: #fff3cd; color: #856404; }
+        .badge-lunch     { background: #d1ecf1; color: #0c5460; }
+        .badge-dinner    { background: #d4edda; color: #155724; }
+        .badge-snack     { background: #f8d7da; color: #721c24; }
+
+        .menu-title { font-size: 1.3rem; font-weight: 600; color: #333; margin-bottom: 1rem; line-height: 1.3; }
+
+        .nutrition-info {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem;
+            padding-top: 1rem; border-top: 1px solid #e0e0e0; margin-bottom: 1rem;
+        }
+        .nutrition-item { display: flex; justify-content: space-between; font-size: 0.9rem; }
+        .nutrition-label { color: #666; }
+        .nutrition-value { font-weight: 600; color: #333; }
+
+        .btn { width: 100%; padding: 10px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.95rem; margin-top: 0.5rem; }
+        .btn-secondary { background: white; color: #667eea; border: 2px solid #667eea; }
+        .btn-secondary:hover { background: #667eea; color: white; }
+
+        .add-btn {
+            width: 100%; padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; border-radius: 8px; font-weight: 600;
+            cursor: pointer; margin-top: 1rem; transition: all 0.3s ease; font-size: 0.95rem;
+        }
+        .add-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102,126,234,0.3); }
+
+        .no-bmi-message { background: white; border-radius: 15px; padding: 3rem; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .no-bmi-message h2 { color: #667eea; margin-bottom: 1rem; font-size: 2rem; }
+        .no-bmi-message p  { color: #666; margin-bottom: 2rem; font-size: 1.1rem; }
+        .no-bmi-message button {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; border-radius: 10px;
+            font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+        }
+        .no-bmi-message button:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102,126,234,0.3); }
+
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 9999; }
+        .modal-content { background: white; padding: 2rem; border-radius: 15px; max-width: 500px; width: 90%; max-height: 80vh; overflow: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #e0e0e0; }
+        .modal-title { font-size: 1.5rem; color: #333; font-weight: 600; }
+        .close-btn { font-size: 2rem; cursor: pointer; color: #999; background: none; border: none; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease; }
+        .close-btn:hover { background: #f0f0f0; color: #333; }
+        #recipe-text { color: #555; line-height: 1.8; font-size: 1rem; }
+
+        .empty-state { text-align: center; padding: 50px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .empty-state h3 { color: #333; font-size: 1.5rem; margin-bottom: 1rem; }
 
         @media (max-width: 768px) {
-            .calculator-wrapper {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .page-title {
-                font-size: 2rem;
-            }
-
-            .menu-toggle {
-                display: block;
-            }
-
-            .nav-right {
-                position: absolute;
-                top: 70px;
-                left: 0;
-                width: 100%;
-                background: white;
-                flex-direction: column;
-                align-items: center;
-                gap: 1rem;
-                padding: 1.5rem 0;
-                display: none;
+            .menu-toggle { display: block; }
+            .nav-links {
+                position: absolute; top: 70px; left: 0; width: 100%;
+                background: white; flex-direction: column; align-items: center;
+                gap: 1rem; padding: 1.5rem 0; display: none;
                 box-shadow: 0 8px 20px rgba(0,0,0,0.15);
             }
-
-            .nav-right.show {
-                display: flex;
-            }
-
-            .nav-links {
-                flex-direction: column;
-                align-items: center;
-                width: 100%;
-            }
+            .nav-links.show { display: flex; }
+            .nav-links li { width: 100%; text-align: center; }
+            .menu-grid { grid-template-columns: 1fr; }
+            .page-title { font-size: 2rem; }
+            .bmi-status-card { grid-template-columns: 1fr; gap: 1rem; }
+            .filter-grid { grid-template-columns: 1fr; }
+            .cuisine-toggle { flex-wrap: wrap; }
         }
+
+        @media (max-width: 600px) { .container { padding: 1rem; } }
     </style>
 </head>
 <body>
     <nav>
-    <div class="nav-container">
-        <div class="logo">🥗 HealthyMenu</div>
-        <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-        <ul class="nav-links" id="navLinks">
-            <li><a href="/index.html" data-lang="navHome">Home</a></li>
-            <li><a href="/bmicalculator.html" class="active" data-lang="navBMI">BMI Calculator</a></li>
-            <li><a href="/menu.html" data-lang="navMenu">Menu</a></li>
-            <li><a href="/food-records.html" data-lang="navRecords">My Records</a></li>
-            <!-- ❌ NO LANGUAGE BUTTON HERE -->
-        </ul>
-    </div>
-</nav>
+        <div class="nav-container">
+            <div class="logo">🥗 HealthyMenu</div>
+            <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/index.html" data-lang="navHome">Home</a></li>
+                <li><a href="/bmicalculator.html" data-lang="navBMI">BMI Calculator</a></li>
+                <li><a href="/menu.html" class="active" data-lang="navMenu">Menu</a></li>
+                <li><a href="/food-records.html" data-lang="navRecords">My Records</a></li>
+            </ul>
+        </div>
+    </nav>
 
     <div class="container">
-        <h1 class="page-title" data-lang="pageTitle">BMI Calculator</h1>
-        <div class="calculator-wrapper">
-            <div class="calculator-card">
-                <h2 data-lang="calcTitle">Calculate Your BMI</h2>
-                <div class="unit-selector">
-                    <div class="unit-option active" onclick="setUnit(this, 'metric')" data-lang="metricBtn">Metric</div>
-                    <div class="unit-option" onclick="setUnit(this, 'imperial')" data-lang="imperialBtn">Imperial</div>
-                </div>
+        <h1 class="page-title">Healthy Menu Recommendations</h1>
+        <p class="page-subtitle">Personalized meal suggestions based on your BMI</p>
 
-                <div class="input-group">
-                    <label for="weight" data-lang="weightLabel">Weight (<span id="weight-unit">kg</span>)</label>
-                    <input type="number" id="weight" data-lang-placeholder="weightPlaceholder" placeholder="Enter your weight" step="0.1">
-                </div>
-
-                <div class="input-group">
-                    <label for="height" data-lang="heightLabel">Height (<span id="height-unit">cm</span>)</label>
-                    <input type="number" id="height" data-lang-placeholder="heightPlaceholder" placeholder="Enter your height" step="0.1">
-                </div>
-                <div class="input-group">
-    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-        <input type="checkbox" id="hasPCOS" style="width: auto; cursor: pointer;">
-        <span data-lang="pcosLabel">Do you have PCOS or hormonal issues?</span>
-    </label>
-    <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;" data-lang="pcosDesc">
-        We'll recommend PCOS-friendly, low-GI meals if you select this option.
-    </p>
-</div>
-
-                <button type="button" class="calculate-btn" id="calcBtn" data-lang="calculateBtn">
-                    Calculate BMI
-                </button>
-            </div>
-            
-
-            <div class="result-card" id="result-card">
-                <h2 data-lang="resultsTitle">Your Results</h2>
-
-                <div class="bmi-display">
-                    <div class="bmi-value" id="bmi-value">0.0</div>
-                    <div class="bmi-category" id="bmi-category">Category</div>
-                    <div class="bmi-description" id="bmi-description">Description</div>
-                </div>
-
-                <div class="bmi-chart">
-                    <h3 data-lang="categoriesTitle">BMI Categories</h3>
-                    <div class="chart-item" id="chart-underweight">
-                        <span data-lang="underweight">Underweight</span>
-                        <span>&lt; 18.5</span>
-                    </div>
-                    <div class="chart-item" id="chart-normal">
-                        <span data-lang="normal">Normal Weight</span>
-                        <span>18.5 - 24.9</span>
-                    </div>
-                    <div class="chart-item" id="chart-overweight">
-                        <span data-lang="overweight">Overweight</span>
-                        <span>25.0 - 29.9</span>
-                    </div>
-                    <div class="chart-item" id="chart-obese">
-                        <span data-lang="obese">Obese</span>
-                        <span>≥ 30.0</span>
-                    </div>
-                </div>
-
-                <div class="action-buttons">
-                    <button type="button" class="btn-secondary" id="resetBtn" data-lang="resetBtn">
-                        Calculate Again
-                    </button>
-                    <button type="button" class="btn-primary" id="viewMenuBtn" data-lang="viewMenuBtn">
-                        View Menu Recommendations
-                    </button>
-                </div>
+        <div class="calorie-warning" id="calorieWarning">
+            <div class="calorie-warning-icon">⚠️</div>
+            <div class="calorie-warning-text">
+                <h3>Daily Calorie Limit Exceeded!</h3>
+                <p>You've consumed <strong id="warningCalories">0</strong> calories today. Consider lighter meals.</p>
             </div>
         </div>
 
-        <div class="info-section">
-            <h2 data-lang="infoTitle">What is BMI?</h2>
-            <p data-lang="infoPara1">
-                Body Mass Index (BMI) is a measure of body fat based on your height and weight.
-            </p>
-            <p data-lang="infoPara2">
-                While BMI is a helpful screening tool, consult a healthcare professional for full assessment.
-            </p>
+        <div id="content-area"></div>
+    </div>
+
+    <div class="modal" id="recipeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="recipe-title">Recipe</h3>
+                <button class="close-btn" onclick="closeRecipe()">&times;</button>
+            </div>
+            <p id="recipe-text"></p>
         </div>
     </div>
 
-    <script>
-        // ✅ INI MESTI ADA KAT PALING ATAS!
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const API = "";
+    const area = document.getElementById("content-area");
+    const userEmail = localStorage.getItem("user_email");
+
+    let userBMI = 0;
+    let dailyCalorieLimit = 2000;
+    let todayCalories = 0;
+    let searchTimeout;
     let currentLang = localStorage.getItem('lang') || 'en';
-    let currentUnit = 'metric';
-    let currentBMI = 0;
+    let currentCuisine = '';
 
-        // LANGUAGE TRANSLATIONS
-        const translations = {
-            en: {
-                navHome: "Home",
-                navBMI: "BMI Calculator",
-                navMenu: "Menu",
-                navRecords: "My Records",
-                pageTitle: "BMI Calculator",
-                calcTitle: "Calculate Your BMI",
-                metricBtn: "Metric",
-                imperialBtn: "Imperial",
-                weightLabel: "Weight",
-                heightLabel: "Height",
-                weightPlaceholder: "Enter your weight",
-                heightPlaceholder: "Enter your height",
-                calculateBtn: "Calculate BMI",
-                pcosLabel: "Do you have PCOS or hormonal issues?",
-                pcosDesc: "We'll recommend PCOS-friendly, low-GI meals if you select this option.",
-                resultsTitle: "Your Results",
-                categoriesTitle: "BMI Categories",
-                underweight: "Underweight",
-                normal: "Normal Weight",
-                overweight: "Overweight",
-                obese: "Obese",
-                resetBtn: "Calculate Again",
-                viewMenuBtn: "View Menu Recommendations",
-                infoTitle: "What is BMI?",
-                infoPara1: "Body Mass Index (BMI) is a measure of body fat based on your height and weight.",
-                infoPara2: "While BMI is a helpful screening tool, consult a healthcare professional for full assessment.",
-                // Category descriptions
-                descUnderweight: "You may need to gain weight",
-                descNormal: "You have a healthy weight",
-                descOverweight: "You may benefit from weight management",
-                descObese: "Consider consulting a healthcare professional",
-                alertInvalid: "Please enter valid weight and height values!",
-                // Categories for database
-                catUnderweight: "Underweight",
-                catNormal: "Normal",
-                catOverweight: "Overweight",
-                catObese: "Obese"
-            },
-            bm: {
-                navHome: "Laman Utama",
-                navBMI: "Kalkulator BMI",
-                navMenu: "Menu",
-                navRecords: "Rekod Saya",
-                pageTitle: "Kalkulator BMI",
-                calcTitle: "Kira BMI Anda",
-                metricBtn: "Metrik",
-                imperialBtn: "Imperial",
-                weightLabel: "Berat",
-                heightLabel: "Tinggi",
-                weightPlaceholder: "Masukkan berat anda",
-                heightPlaceholder: "Masukkan tinggi anda",
-                calculateBtn: "Kira BMI",
-                pcosLabel: "Adakah anda mempunyai PCOS atau masalah hormon?",
-                pcosDesc: "Kami akan cadangkan makanan mesra PCOS, rendah GI jika anda pilih pilihan ini.",
-                resultsTitle: "Keputusan Anda",
-                categoriesTitle: "Kategori BMI",
-                underweight: "Kurang Berat",
-                normal: "Berat Normal",
-                overweight: "Lebih Berat",
-                obese: "Obes",
-                resetBtn: "Kira Semula",
-                viewMenuBtn: "Lihat Cadangan Menu",
-                infoTitle: "Apa itu BMI?",
-                infoPara1: "Indeks Jisim Badan (BMI) adalah ukuran lemak badan berdasarkan tinggi dan berat anda.",
-                infoPara2: "Walaupun BMI adalah alat pemeriksaan yang berguna, rujuk profesional kesihatan untuk penilaian lengkap.",
-                // Category descriptions
-                descUnderweight: "Anda mungkin perlu menambah berat",
-                descNormal: "Anda mempunyai berat yang sihat",
-                descOverweight: "Anda mungkin mendapat manfaat daripada pengurusan berat",
-                descObese: "Pertimbangkan untuk berunding dengan profesional kesihatan",
-                alertInvalid: "Sila masukkan nilai berat dan tinggi yang sah!",
-                // Categories for database (keep English)
-                catUnderweight: "Underweight",
-                catNormal: "Normal",
-                catOverweight: "Overweight",
-                catObese: "Obese"
-            }
-        };
-
-        // APPLY LANGUAGE
-        function applyLanguage() {
-            const lang = translations[currentLang];
-            
-            // Update all elements with data-lang attribute
-            document.querySelectorAll('[data-lang]').forEach(el => {
-                const key = el.getAttribute('data-lang');
-                if (lang[key]) {
-                    el.textContent = lang[key];
-                }
-            });
-
-            // Update placeholders
-            document.querySelectorAll('[data-lang-placeholder]').forEach(el => {
-                const key = el.getAttribute('data-lang-placeholder');
-                if (lang[key]) {
-                    el.placeholder = lang[key];
-                }
-            });
-
-            // Update language button
-            document.getElementById('langBtn').textContent = currentLang === 'en' ? '🌐 EN' : '🌐 BM';
+    const translations = {
+        en: {
+            navHome: "Home", navBMI: "BMI Calculator", navMenu: "Menu", navRecords: "My Records",
+            pageTitle: "Healthy Menu Recommendations",
+            pageSubtitle: "Personalized meal suggestions based on your BMI",
+            warningTitle: "Daily Calorie Limit Exceeded!",
+            warningText: "You've consumed", warningText2: "calories today. Consider lighter meals.",
+            yourBMI: "Your BMI", dailyTarget: "Daily Calorie Target", todayProgress: "Today's Progress",
+            consumed: "Consumed", limit: "Limit",
+            searchTitle: "Search Menu",
+            searchPlaceholder: "🔍 Start typing to search for menu suggestions",
+            searching: "🔍 Searching Menu...", noMenu: "No menu found",
+            viewRecipe: "📖 View Recipe", addToRecords: "➕ Add to My Records",
+            calcFirst: "📊 Calculate Your BMI First",
+            calcFirstDesc: "Please calculate your BMI to get personalized menu recommendations",
+            goToBMI: "Go to BMI Calculator",
+            addedSuccess: "Added Successfully!", addedSuccessText: "Menu has been added to your records 🍽️",
+            addFailed: "Oops!", addFailedText: "Failed to add menu 😢",
+            budgetFilter: "Budget Category", regenerate: "Regenerate Plan",
+            allBudgets: "All Budgets", ekonomi: "Budget (RM 5-7)", sederhana: "Moderate (RM 8-12)", premium: "Premium (RM 15+)",
+            cuisineLabel: "Cuisine Type",
+            cuisineAll: "🍽️ All", cuisineLocal: "🇲🇾 Local", cuisineWestern: "🍔 Western"
+        },
+        bm: {
+            navHome: "Laman Utama", navBMI: "Kalkulator BMI", navMenu: "Menu", navRecords: "Rekod Saya",
+            pageTitle: "Cadangan Menu Sihat",
+            pageSubtitle: "Cadangan hidangan berdasarkan BMI anda",
+            warningTitle: "Had Kalori Harian Melebihi!",
+            warningText: "Anda telah mengambil", warningText2: "kalori hari ini. Pertimbangkan makanan yang lebih ringan.",
+            yourBMI: "BMI Anda", dailyTarget: "Sasaran Kalori Harian", todayProgress: "Kemajuan Hari Ini",
+            consumed: "Diambil", limit: "Had",
+            searchTitle: "Cari Menu",
+            searchPlaceholder: "🔍 Mula menaip untuk mencari cadangan menu",
+            searching: "🔍 Mencari Menu...", noMenu: "Tiada menu dijumpai",
+            viewRecipe: "📖 Lihat Resipi", addToRecords: "➕ Tambah ke Rekod Saya",
+            calcFirst: "📊 Kira BMI Dahulu",
+            calcFirstDesc: "Sila kira BMI anda untuk mendapatkan cadangan menu yang sesuai",
+            goToBMI: "Pergi ke Kalkulator BMI",
+            addedSuccess: "Berjaya Ditambah!", addedSuccessText: "Menu telah ditambah ke rekod anda 🍽️",
+            addFailed: "Oops!", addFailedText: "Gagal menambah menu 😢",
+            budgetFilter: "Kategori Bajet", regenerate: "Jana Semula",
+            allBudgets: "Semua Bajet", ekonomi: "Ekonomi (RM 5-7)", sederhana: "Sederhana (RM 8-12)", premium: "Premium (RM 15+)",
+            cuisineLabel: "Jenis Masakan",
+            cuisineAll: "🍽️ Semua", cuisineLocal: "🇲🇾 Tempatan", cuisineWestern: "🍔 Western"
         }
+    };
 
-        // TOGGLE LANGUAGE
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'bm' : 'en';
-            localStorage.setItem('lang', currentLang);
-            applyLanguage();
-        }
+    if (!userEmail) window.location.href = "/login.html";
 
-        function toggleMenu() {
-            document.getElementById("navRight").classList.toggle("show");
-        }
-
-        function getBMICategory(bmi) {
-            const lang = translations[currentLang];
-            if (bmi < 18.5) return lang.catUnderweight;
-            if (bmi < 25) return lang.catNormal;
-            if (bmi < 30) return lang.catOverweight;
-            return lang.catObese;
-        }
-
-        function setUnit(el, unit) {
-            currentUnit = unit;
-            document.querySelectorAll('.unit-option')
-                .forEach(opt => opt.classList.remove('active'));
-            el.classList.add('active');
-
-            if (unit === 'metric') {
-                document.getElementById('weight-unit').textContent = 'kg';
-                document.getElementById('height-unit').textContent = 'cm';
-            } else {
-                document.getElementById('weight-unit').textContent = 'lbs';
-                document.getElementById('height-unit').textContent = 'in';
-            }
-        }
-
-        function displayResults(bmi) {
-            const lang = translations[currentLang];
-            const bmiValue = bmi.toFixed(1);
-            let category, description, color, chartId;
-
-            document.querySelectorAll('.chart-item').forEach(item => {
-                item.classList.remove('highlight');
-            });
-
-            if (bmi < 18.5) {
-                category = lang.underweight;
-                description = lang.descUnderweight;
-                color = '#3b82f6';
-                chartId = 'chart-underweight';
-            } else if (bmi < 25) {
-                category = lang.normal;
-                description = lang.descNormal;
-                color = '#10b981';
-                chartId = 'chart-normal';
-            } else if (bmi < 30) {
-                category = lang.overweight;
-                description = lang.descOverweight;
-                color = '#f59e0b';
-                chartId = 'chart-overweight';
-            } else {
-                category = lang.obese;
-                description = lang.descObese;
-                color = '#ef4444';
-                chartId = 'chart-obese';
-            }
-
-            document.getElementById('bmi-value').textContent = bmiValue;
-            document.getElementById('bmi-value').style.color = color;
-            document.getElementById('bmi-category').textContent = category;
-            document.getElementById('bmi-category').style.color = color;
-            document.getElementById('bmi-description').textContent = description;
-            
-            document.getElementById(chartId).classList.add('highlight');
-            document.getElementById('result-card').classList.add('visible');
-        }
-        async function saveBMI(height, weight, bmi, category) {
-        const user_email = localStorage.getItem("user_email");
-        const hasPCOS = document.getElementById('hasPCOS').checked ? 1 : 0;
-    
-        if (!user_email) {
-            console.log("❌ No user email found!");
-        return;
-        }
-    
-    // ✅ SAVE BMI WITH EMAIL PREFIX
-    localStorage.setItem(`userBMI_${user_email}`, bmi.toFixed(1));
-    localStorage.setItem(`userPCOS_${user_email}`, hasPCOS);
-    
-    // ✅ SAVE DATE WITH EMAIL PREFIX
-    const today = new Date().toISOString().split('T')[0];
-    localStorage.setItem(`bmiDate_${user_email}`, today);
-    
-    console.log(`✅ BMI saved for ${user_email}:`, bmi.toFixed(1), 'PCOS:', hasPCOS);
-
-
-    try {
-        const response = await fetch("http://localhost:3000/bmi", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                user_email, 
-                height, 
-                weight, 
-                bmi: bmi.toFixed(1),
-                category,
-                has_pcos: hasPCOS
-            })
+    function applyLanguage() {
+        const lang = translations[currentLang];
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            const key = el.getAttribute('data-lang');
+            if (lang[key]) el.textContent = lang[key];
         });
-        
-        const result = await response.json();
-        console.log("✅ BMI saved to database:", result);
-    } catch (err) {
-        console.error("❌ Save failed:", err);
+        document.querySelector('.page-title').textContent = lang.pageTitle;
+        document.querySelector('.page-subtitle').textContent = lang.pageSubtitle;
+        document.querySelector('.calorie-warning-text h3').textContent = lang.warningTitle;
     }
-}
 
-        // EVENT LISTENERS
-        document.getElementById('calcBtn').addEventListener('click', function() {
-            const lang = translations[currentLang];
-            const weight = parseFloat(document.getElementById('weight').value);
-            const height = parseFloat(document.getElementById('height').value);
-            
-            if (!weight || !height || weight <= 0 || height <= 0) {
-                alert(lang.alertInvalid);
-                return;
+    function toggleMenu() { document.getElementById("navLinks").classList.toggle("show"); }
+
+    function getBMICategory(bmi) {
+        if (bmi < 18.5) return "Underweight";
+        if (bmi < 25)   return "Normal Weight";
+        if (bmi < 30)   return "Overweight";
+        return "Obese";
+    }
+
+    function getCalorieTarget(bmi) {
+        if (bmi < 18.5) return 2500;
+        if (bmi < 25)   return 2000;
+        if (bmi < 30)   return 1800;
+        return 1500;
+    }
+
+    async function loadUserBMI() {
+        if (!userEmail) return 0;
+        try {
+            const res = await fetch(`${API}/bmi/latest?email=${userEmail}`);
+            if (!res.ok) return 0;
+            const data = await res.json();
+            if (data && data.bmi) {
+                userBMI = Math.round(parseFloat(data.bmi) * 10) / 10;
+                localStorage.setItem(`userBMI_${userEmail}`, userBMI);
+                localStorage.setItem(`bmiDate_${userEmail}`, new Date().toISOString().split('T')[0]);
+                return userBMI;
             }
+        } catch (err) { console.error("❌ Failed to load BMI:", err); }
+        return 0;
+    }
 
-            let bmi = currentUnit === 'metric' 
-                ? weight / ((height / 100) ** 2)
-                : (weight / (height ** 2)) * 703;
-            
-            currentBMI = bmi;
-            displayResults(bmi);
-            saveBMI(height, weight, bmi, getBMICategory(bmi));
-        });
+    async function loadTodayCalories() {
+        try {
+            const today = new Date().toISOString().split("T")[0];
+            const res = await fetch(`${API}/food`);
+            const allRecords = await res.json();
+            const todayRecords = allRecords.filter(r => r.user_email === userEmail && r.date === today);
+            todayCalories = todayRecords.reduce((sum, r) => sum + Number(r.calories), 0);
+            updateCalorieDisplay();
+            checkCalorieLimit();
+        } catch (err) { console.error("Failed to load calories:", err); }
+    }
 
-        document.getElementById('resetBtn').addEventListener('click', function() {
-            document.getElementById('weight').value = '';
-            document.getElementById('height').value = '';
-            document.getElementById('result-card').classList.remove('visible');
-            currentBMI = 0;
-        });
+    function updateCalorieDisplay() {
+        const percentage = Math.min((todayCalories / dailyCalorieLimit) * 100, 100);
+        const fillElement    = document.getElementById("calorieFill");
+        const consumedElement = document.getElementById("caloriesConsumed");
+        const limitElement   = document.getElementById("caloriesLimit");
+        if (fillElement) {
+            fillElement.style.width = percentage + "%";
+            fillElement.textContent = Math.round(percentage) + "%";
+            fillElement.classList.remove("warning", "danger");
+            if (percentage >= 100) fillElement.classList.add("danger");
+            else if (percentage >= 80) fillElement.classList.add("warning");
+        }
+        if (consumedElement) consumedElement.textContent = todayCalories;
+        if (limitElement)    limitElement.textContent    = dailyCalorieLimit;
+    }
 
-        document.getElementById('viewMenuBtn').addEventListener('click', function() {
-    if (currentBMI > 0) {
-        const user_email = localStorage.getItem("user_email");
-        const hasPCOS = document.getElementById('hasPCOS').checked ? 1 : 0;
+    function checkCalorieLimit() {
+        const lang = translations[currentLang];
+        const warningBanner = document.getElementById("calorieWarning");
+        const warningText   = document.querySelector('.calorie-warning-text p');
+        if (todayCalories > dailyCalorieLimit) {
+            warningBanner.classList.add("show");
+            warningText.innerHTML = `${lang.warningText} <strong>${todayCalories}</strong> ${lang.warningText2}`;
+        } else {
+            warningBanner.classList.remove("show");
+        }
+    }
+
+    function setCuisine(value) {
+        currentCuisine = value;
         
-        if (!user_email) {
-            alert("Please login first!");
+        document.querySelectorAll('.cuisine-btn').forEach(btn => {
+            btn.classList.remove('active-all', 'active-local', 'active-western');
+        });
+        
+        const activeBtn = document.getElementById('cuisine-' + (value === '' ? 'all' : value));
+        
+        if (activeBtn) {
+            if      (value === '')         activeBtn.classList.add('active-all');
+            else if (value === 'local')    activeBtn.classList.add('active-local');
+            else if (value === 'western')  activeBtn.classList.add('active-western');
+        }
+        
+        applyFilters();
+    }
+
+    // ── UNIFIED FILTER WITH CACHING ──
+    async function applyFilters() {
+        const budgetEl = document.getElementById('budgetFilter');
+        const budget   = budgetEl ? budgetEl.value : '';
+        const hasPCOS  = localStorage.getItem(`userPCOS_${userEmail}`) === '1';
+
+        // ✅ CREATE UNIQUE CACHE KEY
+        const cacheKey = `mealPlan_${userEmail}_${userBMI}_${budget}_${currentCuisine}_${hasPCOS}`;
+        
+        // ✅ CHECK IF CACHED PLAN EXISTS
+        const cachedData = localStorage.getItem(cacheKey);
+        if (cachedData) {
+            console.log("📦 Using CACHED meal plan - same meals as before");
+            const data = JSON.parse(cachedData);
+            displayMealPlan(data.plan);
+            
+            const summaryCards = document.querySelectorAll('.bmi-status-card');
+            if (summaryCards.length >= 2) {
+                summaryCards[1].innerHTML = `
+                    <div class="bmi-info-item">
+                        <div class="bmi-label">📊 Weekly Cost</div>
+                        <div class="bmi-value" style="font-size:1.8rem; color:#10b981;">RM ${data.summary.totalCost}</div>
+                    </div>
+                    <div class="bmi-info-item">
+                        <div class="bmi-label">💳 Avg Cost/Day</div>
+                        <div class="bmi-value" style="font-size:1.8rem; color:#667eea;">RM ${data.summary.avgDailyCost}</div>
+                    </div>
+                    <div class="bmi-info-item">
+                        <div class="bmi-label">🔥 Avg Calories/Day</div>
+                        <div class="bmi-value" style="font-size:1.8rem; color:#f59e0b;">${data.summary.avgDailyCalories}</div>
+                    </div>
+                `;
+            }
             return;
         }
-        
-        // ✅ SAVE WITH EMAIL PREFIX
-        localStorage.setItem(`userBMI_${user_email}`, currentBMI.toFixed(1));
-        localStorage.setItem(`userPCOS_${user_email}`, hasPCOS);
-        
-        const today = new Date().toISOString().split('T')[0];
-        localStorage.setItem(`bmiDate_${user_email}`, today);
-        
-        window.location.href = "/menu.html";
-    }
-});
-        // INITIALIZE
-        // INITIALIZE
-        window.onload = function() {
-            // ✅ CHECK localStorage first!
-            const savedLang = localStorage.getItem('lang');
-            if (savedLang) {
-                currentLang = savedLang;
+
+        let url = `${API}/menu/7-day-plan?bmi=${userBMI}&pcos=${hasPCOS}`;
+        if (budget)         url += `&budget=${budget}`;
+        if (currentCuisine) url += `&cuisine=${currentCuisine}`;
+
+        console.log("🌐 Fetching NEW URL:", url);
+
+        try {
+            const res  = await fetch(url);
+            const data = await res.json();
+
+            console.log("📦 API Response:", data);
+            console.log("📊 Number of meals in plan:", data.plan?.length);
+
+            if (data.success) {
+                // ✅ CACHE THE PLAN
+                localStorage.setItem(cacheKey, JSON.stringify(data));
+                console.log("💾 Meal plan cached for reuse");
+                
+                window.currentMealPlan = data.plan;
+                
+                console.log("✅ Calling displayMealPlan...");
+                displayMealPlan(data.plan);
+                
+                const summaryCards = document.querySelectorAll('.bmi-status-card');
+                console.log("📋 Summary cards found:", summaryCards.length);
+                
+                if (summaryCards.length >= 2) {
+                    summaryCards[1].innerHTML = `
+                        <div class="bmi-info-item">
+                            <div class="bmi-label">📊 Weekly Cost</div>
+                            <div class="bmi-value" style="font-size:1.8rem; color:#10b981;">RM ${data.summary.totalCost}</div>
+                        </div>
+                        <div class="bmi-info-item">
+                            <div class="bmi-label">💳 Avg Cost/Day</div>
+                            <div class="bmi-value" style="font-size:1.8rem; color:#667eea;">RM ${data.summary.avgDailyCost}</div>
+                        </div>
+                        <div class="bmi-info-item">
+                            <div class="bmi-label">🔥 Avg Calories/Day</div>
+                            <div class="bmi-value" style="font-size:1.8rem; color:#f59e0b;">${data.summary.avgDailyCalories}</div>
+                        </div>
+                    `;
+                }
             }
-            applyLanguage();
+        } catch (err) { 
+            console.error("❌ Filter error:", err); 
+        }
+    }
+
+    function filterByBudget() { applyFilters(); }
+    function refreshPlan() { 
+        // Clear ALL caches to generate NEW plan
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+            if (key.startsWith(`mealPlan_${userEmail}`)) {
+                localStorage.removeItem(key);
+            }
+        });
+        console.log("🗑️ All cached plans cleared - generating new ones");
+        applyFilters(); 
+    }
+
+    function displayMealPlan(plan) {
+        const container = document.getElementById('mealPlanContainer');
+        if (!container) return;
+
+        const mealIcons  = { breakfast:'🍳', morningSnack:'🍎', lunch:'🍱', afternoonSnack:'🥤', dinner:'🍽️' };
+        const mealLabels = {
+            en: { breakfast:'Breakfast', morningSnack:'Morning Snack', lunch:'Lunch', afternoonSnack:'Afternoon Snack', dinner:'Dinner' },
+            bm: { breakfast:'Sarapan',   morningSnack:'Kudapan Pagi',  lunch:'Tengahari', afternoonSnack:'Kudapan Petang', dinner:'Malam' }
         };
-    </script>
+
+        let html = '<div style="display: grid; gap: 1.5rem;">';
+
+        plan.forEach(day => {
+            html += `
+                <div class="menu-card" style="background:white; border-radius:15px; padding:1.5rem; box-shadow:0 5px 20px rgba(0,0,0,0.1);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:2px solid #f0f0f0;">
+                        <h3 style="color:#667eea; margin:0; font-size:1.5rem;">📅 ${day.dayName}</h3>
+                        <div style="text-align:right;">
+                            <div style="font-size:0.85rem; color:#666;">Total</div>
+                            <div style="font-size:1.2rem; font-weight:700; color:#10b981;">RM ${day.totals.cost}</div>
+                            <div style="font-size:0.9rem; color:#666;">${day.totals.calories} kcal</div>
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+            `;
+
+            Object.keys(day.meals).forEach(mealType => {
+                const meal = day.meals[mealType];
+                if (!meal) {
+  html += `
+    <div style="padding:1rem; border:2px dashed #ccc; border-radius:10px;">
+      <div style="color:#999; font-size:0.85rem;">
+        ⚠️ Menu tidak cukup (Auto fallback used)
+      </div>
+    </div>
+  `;
+  return;
+}
+                const menuJSON = encodeURIComponent(JSON.stringify(meal));
+                const label    = (mealLabels[currentLang] || mealLabels.en)[mealType];
+                const name     = currentLang === 'bm' && meal.name_ms ? meal.name_ms : meal.name;
+
+                const cuisineBadge = meal.cuisine_type === 'western'
+                    ? `<span style="padding:0.2rem 0.6rem; background:#dbeafe; color:#1e40af; border-radius:12px; font-size:0.7rem; font-weight:700;">🍔 Western</span>`
+                    : `<span style="padding:0.2rem 0.6rem; background:#fff3cd; color:#7a5c00; border-radius:12px; font-size:0.7rem; font-weight:700;">🇲🇾 Local</span>`;
+
+                const borderColor = meal.cuisine_type === 'western' ? '#bfdbfe' : '#fde68a';
+
+                html += `
+                    <div style="padding:1rem; border:2px solid ${borderColor}; border-radius:10px; transition:border-color 0.3s;">
+                        <div style="font-size:0.75rem; color:#667eea; font-weight:600; margin-bottom:0.5rem; text-transform:uppercase;">
+                            ${mealIcons[mealType]} ${label}
+                        </div>
+                        <div style="font-weight:600; color:#333; margin-bottom:0.5rem; font-size:0.95rem;">${name}</div>
+                        <div style="display:flex; gap:0.5rem; font-size:0.8rem; color:#666; margin-bottom:0.5rem; flex-wrap:wrap;">
+                            <span>🔥 ${Math.round(meal.calories)} kcal</span>
+                            <span>💰 RM ${meal.price_rm}</span>
+                        </div>
+                        <div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+                            ${cuisineBadge}
+                            ${meal.is_pcos_friendly ? '<span style="padding:0.2rem 0.6rem; background:#d4edda; color:#155724; border-radius:12px; font-size:0.7rem; font-weight:700;">✅ PCOS</span>' : ''}
+                        </div>
+                        <button type="button" class="add-btn" data-menu='${menuJSON}' style="margin-top:0.5rem; font-size:0.85rem; padding:8px;">
+                            ➕ Add to Records
+                        </button>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    async function loadSuggestions() {
+        const lang = translations[currentLang];
+
+        await loadUserBMI();
+
+        if (!userBMI || isNaN(userBMI) || userBMI === 0) { showNoBMIMessage(); return; }
+
+        const category = getBMICategory(userBMI);
+        dailyCalorieLimit = getCalorieTarget(userBMI);
+        const hasPCOS = localStorage.getItem(`userPCOS_${userEmail}`) === '1';
+
+        try {
+            const planRes  = await fetch(`${API}/menu/7-day-plan?bmi=${userBMI}&pcos=${hasPCOS}`);
+            const planData = await planRes.json();
+            if (!planData.success) { showNoBMIMessage(); return; }
+
+            area.innerHTML = `
+                <div class="bmi-status-card">
+                    <div class="bmi-info-item">
+                        <div class="bmi-label">${lang.yourBMI}</div>
+                        <div class="bmi-value">${userBMI.toFixed(1)}</div>
+                        <div class="bmi-category">${category}</div>
+                    </div>
+                    <div class="bmi-info-item">
+                        <div class="bmi-label">${lang.dailyTarget}</div>
+                        <div class="bmi-value" style="font-size:2rem;">${dailyCalorieLimit}</div>
+                        <div class="bmi-category">kcal/day</div>
+                    </div>
+                    <div class="bmi-info-item">
+                        <div class="bmi-label">${currentLang === 'en' ? 'Diet Preference' : 'Pilihan Diet'}</div>
+                        <div style="margin-top:1rem;">
+                            ${hasPCOS
+                                ? `<div style="padding:0.75rem 1.5rem; background:linear-gradient(135deg,#d4edda,#c3e6cb); color:#155724; border-radius:15px; font-size:0.95rem; font-weight:600; text-align:center; border:2px solid #28a745;">✅ PCOS-Friendly</div>`
+                                : `<div style="padding:0.75rem 1.5rem; background:linear-gradient(135deg,#f8f9fa,#e9ecef); color:#495057; border-radius:15px; font-size:0.95rem; font-weight:600; text-align:center; border:2px solid #dee2e6;">🍽️ Regular Menu</div>`
+                            }
+                        </div>
+                    </div>
+                    <div class="bmi-info-item" style="grid-column:1/-1;">
+                        <div class="calorie-progress">
+                            <div class="bmi-label">${lang.todayProgress}</div>
+                            <div class="calorie-bar">
+                                <div class="calorie-fill" id="calorieFill" style="width:0%;">0%</div>
+                            </div>
+                            <div class="calorie-stats">
+                                <span>${lang.consumed}: <strong id="caloriesConsumed">0</strong> kcal</span>
+                                <span>${lang.limit}: <strong id="caloriesLimit">${dailyCalorieLimit}</strong> kcal</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                ${hasPCOS ? `
+                    <div style="background:linear-gradient(135deg,#d4edda,#c3e6cb); border:2px solid #28a745; color:#155724; padding:1.5rem; border-radius:15px; margin-bottom:2rem; box-shadow:0 5px 20px rgba(40,167,69,0.2);">
+                        <div style="display:flex; align-items:center; gap:1rem;">
+                            <div style="font-size:2.5rem;">✅</div>
+                            <div>
+                                <h3 style="font-size:1.3rem; margin-bottom:0.3rem; font-weight:700;">${currentLang === 'en' ? 'PCOS-Friendly Meals Activated' : 'Hidangan Mesra PCOS Diaktifkan'}</h3>
+                                <p style="font-size:0.95rem; opacity:0.9; margin:0;">${currentLang === 'en' ? 'All recommendations are low-GI, high-fiber meals designed for hormonal balance.' : 'Semua cadangan adalah hidangan rendah GI, tinggi serat yang direka untuk keseimbangan hormon.'}</p>
+                            </div>
+                        </div>
+                    </div>` : ''}
+
+                <div class="filter-section">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <div class="filter-title">🎛️ ${currentLang === 'en' ? 'Filters' : 'Penapis'}</div>
+                        <button onclick="refreshPlan()" class="btn btn-secondary" style="padding:8px 16px; margin:0;">🔄 ${lang.regenerate}</button>
+                    </div>
+                    <div class="filter-grid">
+                        <div class="filter-group">
+                            <label>💰 ${lang.budgetFilter}</label>
+                            <select id="budgetFilter" onchange="filterByBudget()">
+                                <option value="">${lang.allBudgets}</option>
+                                <option value="ekonomi">💵 ${lang.ekonomi}</option>
+                                <option value="sederhana">💰 ${lang.sederhana}</option>
+                                <option value="premium">💎 ${lang.premium}</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>🍴 ${lang.cuisineLabel}</label>
+                            <div class="cuisine-toggle">
+                                <button id="cuisine-all"     class="cuisine-btn active-all" onclick="setCuisine('')">${lang.cuisineAll}</button>
+                                <button id="cuisine-local"   class="cuisine-btn"            onclick="setCuisine('local')">${lang.cuisineLocal}</button>
+                                <button id="cuisine-western" class="cuisine-btn"            onclick="setCuisine('western')">${lang.cuisineWestern}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bmi-status-card" style="margin-top:1rem;">
+                    <div class="bmi-info-item">
+                        <div class="bmi-label">📊 Weekly Cost</div>
+                        <div class="bmi-value" style="font-size:1.8rem; color:#10b981;">RM ${planData.summary.totalCost}</div>
+                    </div>
+                    <div class="bmi-info-item">
+                        <div class="bmi-label">💳 Avg Cost/Day</div>
+                        <div class="bmi-value" style="font-size:1.8rem; color:#667eea;">RM ${planData.summary.avgDailyCost}</div>
+                    </div>
+                    <div class="bmi-info-item">
+                        <div class="bmi-label">🔥 Avg Calories/Day</div>
+                        <div class="bmi-value" style="font-size:1.8rem; color:#f59e0b;">${planData.summary.avgDailyCalories}</div>
+                    </div>
+                </div>
+                <!-- SEARCH + UPDATE BMI -->
+<div class="filter-section" style="margin-top:1.5rem;">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+    <div class="filter-title">🔍 ${lang.searchTitle}</div>
+
+    <button onclick="goUpdateBMI()" 
+      class="btn btn-secondary"
+      style="width:auto; padding:6px 14px; font-size:0.85rem;">
+      🔄 Update BMI
+    </button>
+  </div>
+
+  <input 
+    type="text" 
+    placeholder="${lang.searchPlaceholder}" 
+    oninput="searchMenu(this.value)"
+  >
+
+  <div id="menu-container"></div>
+
+</div>
+
+                <div id="mealPlanContainer" style="margin-top:2rem;"></div>
+
+
+                
+
+            `;
+
+            displayMealPlan(planData.plan);
+            await loadTodayCalories();
+
+        } catch (err) {
+            console.error("❌ Load error:", err);
+            showNoBMIMessage();
+        }
+    }
+
+    async function addToRecord(menu) {
+        const lang = translations[currentLang];
+        try {
+            const response = await fetch(`${API}/food`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    user_email: userEmail,
+                    date: new Date().toISOString().split("T")[0],
+                    mealType: menu.mealType || "snack",
+                    foodName: menu.name,
+                    calories: Math.round(menu.calories),
+                    carbs:    Math.round(menu.carbs),
+                    protein:  Math.round(menu.protein),
+                    fat:      Math.round(menu.fat)
+                })
+            });
+            if (!response.ok) { showPopup("error"); return; }
+            todayCalories += Math.round(menu.calories);
+            updateCalorieDisplay();
+            checkCalorieLimit();
+            showPopup("success");
+        } catch (error) { console.error("Error:", error); showPopup("error"); }
+    }
+
+    function searchMenu(query) {
+        const lang = translations[currentLang];
+        clearTimeout(searchTimeout);
+        const container = document.getElementById("menu-container");
+        if (!query || query.trim().length === 0) { container.innerHTML = ""; return; }
+
+        container.innerHTML = `<div style="text-align:center; padding:2rem;"><div style="font-size:2rem; margin-bottom:1rem;">🔍</div><p>${lang.searching}</p></div>`;
+
+        searchTimeout = setTimeout(async () => {
+            try {
+                const res  = await fetch(`${API}/menu/search?q=${encodeURIComponent(query.trim())}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                if (!data.success || !data.meals || data.meals.length === 0) {
+                    container.innerHTML = `<div class="empty-state"><h3>😔 ${lang.noMenu}</h3><p style="color:#666; margin-top:0.5rem;">Try different keywords</p></div>`;
+                    return;
+                }
+                container.innerHTML = `<div class="menu-grid">${data.meals.map(m => createMenuCard(m)).join("")}</div>`;
+            } catch (err) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>❌ Search Failed</h3>
+                        <p style="color:#666; margin-top:0.5rem;">${err.message}</p>
+                        <button onclick="searchMenu('${query}')" class="btn btn-secondary" style="margin-top:1rem;">🔄 Retry</button>
+                    </div>`;
+            }
+        }, 600);
+    }
+
+    function createMenuCard(menu) {
+        const lang = translations[currentLang];
+        const menuJSON = encodeURIComponent(JSON.stringify(menu));
+        return `
+            <div class="menu-card">
+                <div class="menu-image">
+                    <img src="${menu.image || 'https://via.placeholder.com/300x200?text=No+Image'}" alt="${menu.name}">
+                </div>
+                <div class="menu-content">
+                    <span class="menu-meal-type badge-${menu.mealType}">${menu.mealType}</span>
+                    <h3 class="menu-title">${menu.name}</h3>
+                    <div class="nutrition-info">
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">🔥 Calories</span>
+                            <span class="nutrition-value">${menu.calories} kcal</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">🍚 Carbs</span>
+                            <span class="nutrition-value">${menu.carbs}g</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">🥩 Protein</span>
+                            <span class="nutrition-value">${menu.protein}g</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">🥑 Fat</span>
+                            <span class="nutrition-value">${menu.fat}g</span>
+                        </div>
+                    </div>
+                    ${menu.recipe ? `<button class="btn btn-secondary" onclick='showRecipe(${JSON.stringify(menu.name)}, ${JSON.stringify(menu.recipe)})'>${lang.viewRecipe}</button>` : ''}
+                    <button type="button" class="add-btn" data-menu='${menuJSON}'>${lang.addToRecords}</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function showRecipe(title, recipe) {
+        document.getElementById("recipe-title").innerText = title;
+        document.getElementById("recipe-text").innerText  = recipe;
+        document.getElementById("recipeModal").style.display = "flex";
+    }
+
+    function closeRecipe() { document.getElementById("recipeModal").style.display = "none"; }
+
+    function showNoBMIMessage() {
+        const lang = translations[currentLang];
+        area.innerHTML = `
+            <div class="no-bmi-message">
+                <h2>${lang.calcFirst}</h2>
+                <p>${lang.calcFirstDesc}</p>
+                <button onclick="window.location.href='/bmicalculator.html'">${lang.goToBMI}</button>
+            </div>`;
+    }
+
+    function showPopup(type = "success") {
+        const lang = translations[currentLang];
+        if (type === "success") {
+            Swal.fire({ icon:"success", title:lang.addedSuccess, text:lang.addedSuccessText, showConfirmButton:false, timer:2000, timerProgressBar:true });
+        } else {
+            Swal.fire({ icon:"error", title:lang.addFailed, text:lang.addFailedText, confirmButtonColor:"#dc3545" });
+        }
+    }
+
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest(".add-btn");
+        if (!btn) return;
+        const menu = JSON.parse(decodeURIComponent(btn.dataset.menu));
+        addToRecord(menu);
+    });
+    function goUpdateBMI() {
+  Swal.fire({
+    title: currentLang === 'bm' ? 'Kemas Kini BMI?' : 'Update BMI?',
+    text: currentLang === 'bm'
+      ? 'Anda akan diarahkan ke kalkulator BMI.'
+      : 'You will be redirected to BMI Calculator.',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Yes',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = "/bmicalculator.html?update=1";
+    }
+  });
+}
+
+    window.onload = function() {
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').includes(currentPage)) link.classList.add('active');
+        });
+        applyLanguage();
+        loadSuggestions();
+    };
+</script>
 </body>
 </html>
