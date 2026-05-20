@@ -318,7 +318,7 @@ tbody tr:hover {
 <script>
 async function loadUserCount() {
   try {
-    const res = await fetch("http://localhost:3000/admin/user-count");
+    const res = await fetch("/admin/user-count");
     const data = await res.json();
     document.getElementById("userCount").innerText = data.total;
   } catch (error) {

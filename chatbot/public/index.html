@@ -837,7 +837,7 @@
         addChat(message, "user"); inputBox.value = "";
         const typing = document.createElement("div"); typing.className = "chat-msg bot"; typing.textContent = lang === "en" ? "AI is typing..." : "AI sedang menaip..."; messagesBox.appendChild(typing);
         try {
-            const res = await fetch("http://localhost:3000/chatbot/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message }) });
+            const res = await fetch("/chatbot/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message }) });
             const data = await res.json(); messagesBox.removeChild(typing);
             addChat(data.reply || (lang === "en" ? "No response from AI." : "Tiada jawapan dari AI."), "bot");
         } catch (err) { messagesBox.removeChild(typing); addChat(lang === "en" ? "Server error. Please try again." : "Ralat pelayan. Sila cuba lagi.", "bot"); }
