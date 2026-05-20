@@ -16,9 +16,9 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ error: "User already exists" });
     }
 
-    const result = await db.query(
-  "INSERT INTO users (name, email, password, role, role_id, status) VALUES ($1, $2, $3, 'user', 2, 'Active') RETURNING *",
-  [email, email, password]
+   const result = await db.query(
+  "INSERT INTO users (email, password, role) VALUES ($1, $2, 'user') RETURNING *",
+  [email, password]
 );
 
     console.log("✅ User created:", email);
