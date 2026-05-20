@@ -17,9 +17,9 @@ router.post("/signup", async (req, res) => {
     }
 
     const result = await db.query(
-      "INSERT INTO users (email, password, role) VALUES ($1, $2, $3) RETURNING *",
-      [email, password, "user"]
-    );
+  "INSERT INTO users (name, email, password, role, role_id, status) VALUES ($1, $2, $3, 'user', 2, 'Active') RETURNING *",
+  [email, email, password]
+);
 
     console.log("✅ User created:", email);
     res.json({ success: true, id: result.rows[0].id, email, role: "user" });
