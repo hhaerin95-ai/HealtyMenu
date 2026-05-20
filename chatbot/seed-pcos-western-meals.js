@@ -93,8 +93,3 @@ pcsosWesternMeals.forEach(m => {
   );
 });
 
-setTimeout(() => {
-  stmt.finalize();
-  console.log(`\n🎉 Done! Inserted: ${inserted}, Skipped (duplicate): ${skipped}`);
-  process.exit(0);
-}, 3000);

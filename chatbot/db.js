@@ -39,6 +39,7 @@ db.run(`
     fat INTEGER
   )
 `);
+
 db.run(`
   CREATE TABLE IF NOT EXISTS bmi_records (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,6 +51,28 @@ db.run(`
     date TEXT
   )
 `);
+
+// RECIPES TABLE
+db.run(`
+  CREATE TABLE IF NOT EXISTS recipes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    name_ms TEXT,
+    category TEXT,
+    bmi_category TEXT,
+    calories INTEGER,
+    protein REAL,
+    carbs REAL,
+    fat REAL,
+    price_rm REAL,
+    budget_category TEXT,
+    is_pcos_friendly INTEGER DEFAULT 0,
+    is_low_gi INTEGER DEFAULT 0,
+    cuisine_type TEXT,
+    recipe TEXT
+  )
+`);
+
 console.log("DB PATH:", path.join(__dirname, "healthymenu.db"));
 
 module.exports = db;
