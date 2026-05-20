@@ -1,0 +1,32 @@
+<h2>Add Menu (Admin)</h2>
+
+<input id="name" placeholder="Menu Name"><br>
+<input id="bmi" placeholder="BMI Category (underweight / normal / overweight)"><br>
+<input id="meal" placeholder="Meal Type"><br>
+<input id="cal" placeholder="Calories"><br>
+<input id="carbs" placeholder="Carbs"><br>
+<input id="protein" placeholder="Protein"><br>
+<input id="fat" placeholder="Fat"><br>
+<textarea id="recipe" placeholder="Recipe"></textarea><br>
+
+<button onclick="addMenu()">Add Menu</button>
+
+<script>
+async function addMenu() {
+  await fetch("http://localhost:3000/menu", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: name.value,
+      bmiCategory: bmi.value,
+      mealType: meal.value,
+      calories: cal.value,
+      carbs: carbs.value,
+      protein: protein.value,
+      fat: fat.value,
+      recipe: recipe.value
+    })
+  });
+  alert("Menu added!");
+}
+</script>

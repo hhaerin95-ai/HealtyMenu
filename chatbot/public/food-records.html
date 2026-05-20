@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Food Records - Healthy Menu System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .menu-toggle {
+            display: none;
+            font-size: 26px;
+            cursor: pointer;
+            color: #667eea;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .nav-links a.active {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background: #fff;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .logout-btn:hover {
+            background: #e74c3c;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .logout-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 2rem;
+        }
+
+        .page-title {
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Summary Cards */
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .summary-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.3rem;
+        }
+
+        .summary-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .warning-card {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(239,68,68,0.3);
+        }
+
+        /* Controls Section */
+        .controls-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .date-filter {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .date-filter input {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .date-filter input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Records Table */
+        .records-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .records-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            color: #666;
+        }
+
+        tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .meal-type-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-breakfast {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-lunch {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .badge-dinner {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .delete-btn {
+            padding: 6px 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            margin-bottom: 1.5rem;
+        }
+
+        /* Add Record Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: pop 0.25s ease;
+        }
+
+        @keyframes pop {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            background: none;
+            border: none;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .mobile-only {
+            display: none;
+        }
+
+        .desktop-only {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .controls-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .date-filter {
+                flex-direction: column;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.7rem;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .nav-right {
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: white;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+                padding: 1.5rem 0;
+                display: none;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            }
+
+            .nav-right.show {
+                display: flex;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+
+            .mobile-only {
+                display: block;
+            }
+
+            .desktop-only {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">🥗 HealthyMenu</div>
+            <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+            <div class="nav-right" id="navRight">
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="/index.html" data-lang="navHome">Home</a></li>
+                    <li><a href="/bmicalculator.html" data-lang="navBMI">BMI Calculator</a></li>
+                    <li><a href="/menu.html" data-lang="navMenu">Menu</a></li>
+                    <li><a href="/food-records.html" class="active" data-lang="navRecords">My Records</a></li>
+                </ul>
+                <button onclick="logout()" class="logout-btn desktop-only" data-lang="logoutBtn">
+                    🚪 Logout
+                </button>
+                <button onclick="logout()" class="logout-btn mobile-only" data-lang="logoutBtn">
+                    🚪 Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <h1 class="page-title" data-lang="pageTitle">My Food Records</h1>
+        <p class="page-subtitle" data-lang="pageSubtitle">Track and manage your daily food intake</p>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+            <div class="summary-card">
+                <div class="summary-icon">📊</div>
+                <div class="summary-value" id="total-records">0</div>
+                <div class="summary-label" data-lang="totalRecords">Total Records</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon">🔥</div>
+                <div class="summary-value" id="total-calories">0</div>
+                <div class="summary-label" data-lang="totalCalories">Total Calories (Today)</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon">🍽️</div>
+                <div class="summary-value" id="meals-today">0</div>
+                <div class="summary-label" data-lang="mealsToday">Meals Today</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon">📅</div>
+                <div class="summary-value" id="tracking-days">0</div>
+                <div class="summary-label" data-lang="trackingDays">Days Tracking</div>
+            </div>
+        </div>
+
+        <div id="calorie-warning" class="warning-card" style="display:none;" data-lang="calorieWarning">
+            ⚠️ You have exceeded your daily calorie limit!
+        </div>
+
+        <!-- Controls Section -->
+        <div class="controls-section">
+            <div class="date-filter">
+                <input type="date" id="filter-date">
+                <button class="btn btn-secondary" onclick="showAllRecords()" data-lang="showAllBtn">
+                    Show All
+                </button>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="openModal()" data-lang="addNewBtn">
+                    ➕ Add New Record
+                </button>
+            </div>
+        </div>
+
+        <!-- Records Section -->
+        <div class="records-section">
+            <h2 class="records-title" data-lang="historyTitle">Food Intake History</h2>
+            <div id="records-table-container"></div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="delete-modal">
+        <div class="modal-content" style="max-width:400px">
+            <div class="modal-header">
+                <h3 class="modal-title" style="color:#dc2626" data-lang="deleteTitle">Delete Record</h3>
+                <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+            </div>
+
+            <p style="margin-bottom:20px;color:#555" data-lang="deleteConfirm">
+                Are you sure you want to delete this food record?
+                <br><b>This action cannot be undone.</b>
+            </p>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn btn-secondary" style="flex:1" onclick="closeDeleteModal()" data-lang="cancelBtn">
+                    Cancel
+                </button>
+                <button class="btn" style="flex:1; background:#dc2626; color:white;" onclick="confirmDelete()" data-lang="deleteBtn">
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Record Modal -->
+    <div class="modal" id="add-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" data-lang="addRecordTitle">Add Food Record</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form onsubmit="addRecord(event)">
+                <div class="form-group">
+                    <label data-lang="dateLabel">Date</label>
+                    <input type="date" id="record-date" required>
+                </div>
+                <div class="form-group">
+                    <label data-lang="mealTypeLabel">Meal Type</label>
+                    <select id="meal-type" required>
+                        <option value="" data-lang="selectMeal">Select meal type</option>
+                        <option value="breakfast">Breakfast</option>
+                        <option value="lunch">Lunch</option>
+                        <option value="dinner">Dinner</option>
+                        <option value="snack">Snack</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-lang="foodNameLabel">Food Name</label>
+                    <input type="text" id="food-name" placeholder="e.g., Grilled Chicken Salad" required>
+                </div>
+                <div class="form-group">
+                    <label data-lang="caloriesLabel">Calories (kcal)</label>
+                    <input type="number" id="calories" placeholder="e.g., 350" required>
+                </div>
+                <div class="form-group">
+                    <label data-lang="carbsLabel">Carbs (g)</label>
+                    <input type="number" id="carbs" placeholder="e.g., 45" required>
+                </div>
+                <div class="form-group">
+                    <label data-lang="proteinLabel">Protein (g)</label>
+                    <input type="number" id="protein" placeholder="e.g., 30" required>
+                </div>
+                <div class="form-group">
+                    <label data-lang="fatLabel">Fat (g)</label>
+                    <input type="number" id="fat" placeholder="e.g., 12" required>
+                </div>
+                <button id="save-btn" type="submit" class="btn btn-primary" style="width: 100%;" data-lang="saveBtn">Save Record</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    const API = "http://localhost:3000";
+    const IS_ADMIN = localStorage.getItem("userRole") === "admin";
+    const userEmail = localStorage.getItem("user_email");
+    
+    // ✅ READ BMI FROM LOCALSTORAGE
+    let userBMI = parseFloat(localStorage.getItem("userBMI")) || 0;
+    
+    // ✅ DYNAMIC CALORIE LIMIT BASED ON BMI
+    let DAILY_LIMIT = 2000; // Default
+    
+    let foodRecords = [];
+    let deleteId = null;
+
+    // ✅ READ LANGUAGE FROM LOCALSTORAGE
+    let currentLang = localStorage.getItem('lang') || 'en';
+
+    // ✅ TRANSLATIONS (same as before)
+    const translations = {
+        en: {
+            navHome: "Home",
+            navBMI: "BMI Calculator",
+            navMenu: "Menu",
+            navRecords: "My Records",
+            logoutBtn: "🚪 Logout",
+            pageTitle: "My Food Records",
+            pageSubtitle: "Track and manage your daily food intake",
+            totalRecords: "Total Records",
+            totalCalories: "Total Calories (Today)",
+            mealsToday: "Meals Today",
+            trackingDays: "Days Tracking",
+            calorieWarning: "⚠️ You have exceeded your daily calorie limit!",
+            showAllBtn: "Show All",
+            addNewBtn: "➕ Add New Record",
+            historyTitle: "Food Intake History",
+            deleteTitle: "Delete Record",
+            deleteConfirm: "Are you sure you want to delete this food record?",
+            cancelBtn: "Cancel",
+            deleteBtn: "Delete",
+            addRecordTitle: "Add Food Record",
+            dateLabel: "Date",
+            mealTypeLabel: "Meal Type",
+            selectMeal: "Select meal type",
+            foodNameLabel: "Food Name",
+            caloriesLabel: "Calories (kcal)",
+            carbsLabel: "Carbs (g)",
+            proteinLabel: "Protein (g)",
+            fatLabel: "Fat (g)",
+            saveBtn: "Save Record",
+            noRecords: "No Records Yet",
+            tableDate: "Date",
+            tableMeal: "Meal",
+            tableFood: "Food",
+            tableCalories: "Calories",
+            tableAction: "Action"
+        },
+        bm: {
+            navHome: "Laman Utama",
+            navBMI: "Kalkulator BMI",
+            navMenu: "Menu",
+            navRecords: "Rekod Saya",
+            logoutBtn: "🚪 Log Keluar",
+            pageTitle: "Rekod Makanan Saya",
+            pageSubtitle: "Jejak dan urus pengambilan makanan harian anda",
+            totalRecords: "Jumlah Rekod",
+            totalCalories: "Jumlah Kalori (Hari Ini)",
+            mealsToday: "Hidangan Hari Ini",
+            trackingDays: "Hari Penjejakan",
+            calorieWarning: "⚠️ Anda telah melebihi had kalori harian!",
+            showAllBtn: "Tunjuk Semua",
+            addNewBtn: "➕ Tambah Rekod Baru",
+            historyTitle: "Sejarah Pengambilan Makanan",
+            deleteTitle: "Padam Rekod",
+            deleteConfirm: "Adakah anda pasti mahu memadam rekod makanan ini?",
+            cancelBtn: "Batal",
+            deleteBtn: "Padam",
+            addRecordTitle: "Tambah Rekod Makanan",
+            dateLabel: "Tarikh",
+            mealTypeLabel: "Jenis Hidangan",
+            selectMeal: "Pilih jenis hidangan",
+            foodNameLabel: "Nama Makanan",
+            caloriesLabel: "Kalori (kcal)",
+            carbsLabel: "Karbohidrat (g)",
+            proteinLabel: "Protein (g)",
+            fatLabel: "Lemak (g)",
+            saveBtn: "Simpan Rekod",
+            noRecords: "Tiada Rekod Lagi",
+            tableDate: "Tarikh",
+            tableMeal: "Hidangan",
+            tableFood: "Makanan",
+            tableCalories: "Kalori",
+            tableAction: "Tindakan"
+        }
+    };
+
+    // ✅ CALCULATE DAILY CALORIE TARGET BASED ON BMI
+    function getCalorieTarget(bmi) {
+        if (!bmi || bmi === 0) return 2000; // Default if no BMI
+        if (bmi < 18.5) return 2500; // Underweight
+        if (bmi < 25) return 2000;   // Normal
+        if (bmi < 30) return 1800;   // Overweight
+        return 1500;                 // Obese
+    }
+
+    // ✅ LOAD BMI FROM DATABASE IF NOT IN LOCALSTORAGE
+    async function loadUserBMI() {
+        if (userBMI > 0) return userBMI;
+        
+        try {
+            const res = await fetch(`${API}/bmi/latest?email=${userEmail}`);
+            const data = await res.json();
+            
+            if (data && data.bmi) {
+                userBMI = parseFloat(data.bmi);
+                localStorage.setItem("userBMI", userBMI);
+                return userBMI;
+            }
+        } catch (err) {
+            console.error("Failed to load BMI from database:", err);
+        }
+        
+        return 0;
+    }
+
+    // ✅ APPLY LANGUAGE TO STATIC ELEMENTS
+    function applyLanguage() {
+        const lang = translations[currentLang];
+        
+        document.querySelectorAll('[data-lang]').forEach(el => {
+            const key = el.getAttribute('data-lang');
+            if (lang[key]) {
+                if (el.tagName === 'INPUT' && el.placeholder) {
+                    // Keep placeholder as is for inputs
+                } else {
+                    el.textContent = lang[key];
+                }
+            }
+        });
+    }
+
+    function toggleMenu() {
+        document.getElementById("navRight").classList.toggle("show");
+    }
+
+    function logout() {
+    const userEmail = localStorage.getItem("user_email");
+    
+    // ✅ CLEAN UP: Delete old BMI keys (without email prefix)
+    localStorage.removeItem("userBMI");
+    localStorage.removeItem("bmiDate");
+    
+    // ✅ DELETE user email
+    localStorage.removeItem("user_email");
+    
+    // Clear session storage
+    sessionStorage.clear();
+    
+    // BMI dengan email prefix akan kekal:
+    // userBMI_alice@test.com ✅
+    // userBMI_bob@test.com ✅
+    
+    console.log("✅ Logged out successfully");
+    window.location.href = "/login.html";
+}
+
+    // ===== MODAL =====
+    function openModal() {
+        document.getElementById("add-modal").classList.add("show");
+    }
+
+    function closeModal() {
+        document.getElementById("add-modal").classList.remove("show");
+    }
+
+    function openDeleteModal(id) {
+        deleteId = id;
+        document.getElementById("delete-modal").classList.add("show");
+    }
+
+    function closeDeleteModal() {
+        deleteId = null;
+        document.getElementById("delete-modal").classList.remove("show");
+    }
+
+    // ===== DISPLAY =====
+    function displayRecords(records = foodRecords) {
+    const lang = translations[currentLang];
+    const container = document.getElementById("records-table-container");
+
+    if (records.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <h3>${lang.noRecords}</h3>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = `
+        <table>
+            <thead>
+                <tr>
+                    <th>${lang.tableDate}</th>
+                    <th>${lang.tableMeal}</th>
+                    <th>${lang.tableFood}</th>
+                    <th>${lang.tableCalories}</th>
+                    <th>${lang.tableAction}</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${records.map(r => `
+                    <tr>
+                        <td>${r.date}</td>
+                        <td><span class="meal-type-badge badge-${r.mealType}">${r.mealType}</span></td>
+                        <td>${r.foodName}</td>
+                        <td><strong>${r.calories}</strong> kcal</td>
+                        <td>
+                            <button class="delete-btn" onclick="openDeleteModal(${r.id})">
+                                🗑️ ${lang.deleteBtn}
+                            </button>
+                        </td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        </table>
+    `;
+}
+
+    function showAllRecords() {
+        displayRecords(foodRecords);
+    }
+
+    // ✅ SUMMARY + CALORIE WARNING (WITH DYNAMIC LIMIT)
+    function updateSummary() {
+        const lang = translations[currentLang];
+        const today = new Date().toISOString().split("T")[0];
+        const todayRecords = foodRecords.filter(r => r.date === today);
+
+        const totalCalories = todayRecords.reduce(
+            (sum, r) => sum + Number(r.calories),
+            0
+        );
+
+        document.getElementById("total-records").textContent = foodRecords.length;
+        document.getElementById("total-calories").textContent = totalCalories;
+        document.getElementById("meals-today").textContent = todayRecords.length;
+
+        const uniqueDates = [...new Set(foodRecords.map(r => r.date))];
+        document.getElementById("tracking-days").textContent = uniqueDates.length;
+
+        // ✅ UPDATE WARNING WITH DYNAMIC LIMIT
+        const warning = document.getElementById("calorie-warning");
+        if (totalCalories > DAILY_LIMIT) {
+            warning.style.display = "block";
+            // Update warning text with actual limit
+            if (currentLang === 'en') {
+                warning.textContent = `⚠️ You have exceeded your daily calorie limit of ${DAILY_LIMIT} kcal!`;
+            } else {
+                warning.textContent = `⚠️ Anda telah melebihi had kalori harian sebanyak ${DAILY_LIMIT} kcal!`;
+            }
+        } else {
+            warning.style.display = "none";
+        }
+    }
+
+    // ===== LOAD =====
+    async function loadFromDatabase() {
+        // ✅ Load BMI first to calculate proper daily limit
+        if (!userBMI || userBMI === 0) {
+            await loadUserBMI();
+        }
+        
+        // ✅ Set daily limit based on BMI
+        DAILY_LIMIT = getCalorieTarget(userBMI);
+        
+        console.log(`📊 User BMI: ${userBMI}`);
+        console.log(`🎯 Daily Calorie Limit: ${DAILY_LIMIT} kcal`);
+
+        const res = await fetch(API + "/food");
+        const all = await res.json();
+
+        foodRecords = all.filter(r => r.user_email === userEmail);
+        displayRecords();
+        updateSummary();
+    }
+
+    // ===== ADD =====
+    async function addRecord(event) {
+        event.preventDefault();
+
+        const data = {
+            user_email: userEmail,
+            date: document.getElementById("record-date").value,
+            mealType: document.getElementById("meal-type").value,
+            foodName: document.getElementById("food-name").value,
+            calories: Number(document.getElementById("calories").value),
+            carbs: Number(document.getElementById("carbs").value),
+            protein: Number(document.getElementById("protein").value),
+            fat: Number(document.getElementById("fat").value)
+        };
+
+        const res = await fetch(API + "/food", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        if (!res.ok) {
+            alert("FAILED SAVE ❌");
+            return;
+        }
+
+        closeModal();
+        event.target.reset();
+        loadFromDatabase();
+    }
+
+    // ===== DELETE =====
+    async function confirmDelete() {
+        if (!deleteId) return;
+
+        const res = await fetch(API + "/food/" + deleteId, {
+            method: "DELETE",
+            headers: {
+                "x-admin-key": "admin123"
+            }
+        });
+
+        if (!res.ok) {
+            alert("Delete failed ❌");
+            return;
+        }
+
+        closeDeleteModal();
+        loadFromDatabase();
+    }
+
+    // ✅ INITIALIZE - APPLY LANGUAGE & LOAD DATA
+    applyLanguage();
+    loadFromDatabase();
+</script>
+</body>
+</html>

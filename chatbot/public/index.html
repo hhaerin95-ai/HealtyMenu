@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthy Menu Recommendation System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        nav {
+            background: rgba(255,255,255,0.95);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            text-align: center;
+            color: white;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.95;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .features {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-card h3 {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.3rem;
+        }
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        .bmi-info-section {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 2rem;
+        }
+        .section-title {
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            font-weight: 700;
+        }
+        .bmi-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .bmi-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 5px solid;
+        }
+        .bmi-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        }
+        .bmi-card.underweight {
+            border-top-color: #3498db;
+        }
+        .bmi-card.normal {
+            border-top-color: #2ecc71;
+        }
+        .bmi-card.overweight {
+            border-top-color: #f39c12;
+        }
+        .bmi-card.obese {
+            border-top-color: #e74c3c;
+        }
+        .bmi-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .bmi-range {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        .bmi-card.underweight .bmi-range {
+            background: rgba(52,152,219,0.1);
+            color: #3498db;
+        }
+        .bmi-card.normal .bmi-range {
+            background: rgba(46,204,113,0.1);
+            color: #2ecc71;
+        }
+        .bmi-card.overweight .bmi-range {
+            background: rgba(243,156,18,0.1);
+            color: #f39c12;
+        }
+        .bmi-card.obese .bmi-range {
+            background: rgba(231,76,60,0.1);
+            color: #e74c3c;
+        }
+        .bmi-card ul {
+            list-style: none;
+            text-align: left;
+            margin-top: 1rem;
+        }
+        .bmi-card ul li {
+            padding: 0.5rem 0;
+            color: #555;
+            line-height: 1.6;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .bmi-card ul li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+            color: inherit;
+        }
+        .bmi-description {
+            margin-top: 1rem;
+            text-align: left;
+        }
+        .bmi-description p {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .menu-recommendations {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 2px dashed #e0e0e0;
+        }
+        .menu-recommendations p {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            text-align: left;
+        }
+        .food-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .food-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+        .food-tag:hover {
+            transform: scale(1.05);
+        }
+        .stats-section {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .stat-item {
+            padding: 1.5rem;
+        }
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 500;
+        }
+        .tips-section {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 2rem;
+        }
+        .tips-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .tip-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .tip-card:hover {
+            transform: translateY(-5px);
+        }
+        .tip-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .tip-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        .tip-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        .about {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 3rem 2rem;
+            background: white;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .about h2 {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 2rem;
+        }
+        .about p {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        footer {
+            background: rgba(255,255,255,0.95);
+            padding: 2rem;
+            text-align: center;
+            color: #666;
+            margin-top: 4rem;
+        }
+        footer p {
+            margin: 0.5rem 0;
+        }
+        #chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            font-size: 26px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        #chat-toggle:hover {
+            background: #5568d3;
+            transform: scale(1.1);
+        }
+        #chat-popup {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 320px;
+            height: 420px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 9999;
+        }
+        #chat-header {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        #chat-messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+        .chat-msg {
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        .chat-msg.user {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+            display: block;
+            text-align: right;
+        }
+        .chat-msg.bot {
+            background: #f1f1f1;
+            color: #333;
+        }
+        #chat-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+            background: white;
+        }
+        #chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+        #chat-input button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        #chat-input button:hover {
+            background: #5568d3;
+        }
+        .lang-toggle {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .lang-toggle:hover {
+            background: #667eea;
+            color: white;
+        }
+        .logout-btn {
+            background: #fff;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .logout-btn:hover {
+            background: #e74c3c;
+            color: white;
+            transform: translateY(-1px);
+        }
+        .menu-toggle {
+            display: none;
+            font-size: 26px;
+            cursor: pointer;
+            color: #667eea;
+        }
+        .desktop-only {
+            display: block;
+        }
+        @media (max-width: 768px) {
+        .hero h1 {
+            font-size: 2rem;
+        } .hero p { font-size: 1rem; } .section-title { font-size: 2rem; }
+        .features {
+            grid-template-columns: 1fr;
+            padding: 1rem;
+        }
+        .bmi-categories {
+            grid-template-columns: 1fr;
+            padding: 1rem;
+        }
+        .tips-container {
+            grid-template-columns: 1fr;
+            padding: 1rem;
+        }
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+        .about {
+            margin: 2rem 1rem;
+            padding: 2rem 1rem;
+        }
+        #chat-popup {
+            width: 280px;
+            height: 380px;
+        }
+        .menu-toggle {
+            display: block;
+        }
+        .nav-links {
+            position: absolute;
+            top: 70px;
+            left: 0;
+            width: 100%;
+            background: white;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem 0;
+            display: none;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        .nav-links.show {
+            display: flex;
+        }
+        .nav-links li {
+            width: 100%;
+            text-align: center;
+        }
+        .nav-links a {
+            font-size: 1.1rem;
+        }
+        .desktop-only {
+            display: none;
+        }
+        .mobile-only {
+            display: block;
+        }
+        }
+        @media (min-width: 769px) { .mobile-only { display: none; } }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-container">
+        <div class="logo">🥗 HealthyMenu</div>
+        <div class="menu-toggle" id="menuToggle">☰</div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="/index.html" data-lang="navHome">Home</a></li>
+            <li><a href="/bmicalculator.html" data-lang="navBMI">BMI Calculator</a></li>
+            <li><a href="/menu.html" data-lang="navMenu">Menu</a></li>
+            <li><a href="/food-records.html" data-lang="navRecords">My Records</a></li>
+            <li class="desktop-only"><button id="langBtn" class="lang-toggle" onclick="toggleLang()">🌐 EN</button></li>
+            <li class="desktop-only"><button class="logout-btn" onclick="logout()">🚪 Logout</button></li>
+            <li class="mobile-only"><button id="langBtnMobile" class="lang-toggle" onclick="toggleLang()">🌐 EN</button></li>
+            <li class="mobile-only"><button class="logout-btn" onclick="logout()">🚪 Logout</button></li>
+        </ul>
+    </div>
+</nav>
+
+<section class="hero">
+    <h1 id="heroTitle">Welcome to Healthy Menu System</h1>
+    <p id="heroTagline">Your personalized guide to healthy eating and better lifestyle</p>
+    <a id="heroBtn" href="/bmicalculator.html" class="cta-button">Get Started</a>
+</section>
+
+<section class="features">
+    <div class="feature-card"><h3 id="f1Title">📊 BMI Calculator</h3><p id="f1Desc">Calculate your BMI easily and track your health progress</p></div>
+    <div class="feature-card"><h3 id="f2Title">🍽️ Menu Recommendation</h3><p id="f2Desc">Get personalized healthy menu based on your BMI</p></div>
+    <div class="feature-card"><h3 id="f3Title">📱 Nutrition Info</h3><p id="f3Desc">Detailed nutrition info for Malaysian & international foods</p></div>
+    <div class="feature-card"><h3 id="f4Title">🤖 AI Assistant</h3><p id="f4Desc">Get instant answers about nutrition and healthy eating</p></div>
+</section>
+
+<section class="bmi-info-section">
+    <h2 class="section-title" id="bmiSectionTitle">Understanding Your BMI</h2>
+    <div class="bmi-categories">
+
+        <!-- UNDERWEIGHT -->
+        <div class="bmi-card underweight">
+            <h3 id="bmiUnderTitle">⚠️ Underweight</h3>
+            <div class="bmi-range" id="bmiUnderRange">BMI &lt; 18.5</div>
+            <div class="bmi-description"><p><strong id="bmiUnderFocusLabel">What to focus on:</strong></p>
+                <ul id="bmiUnderList">
+                    <li>Increase calorie intake with nutrient-dense foods</li>
+                    <li>Add more protein: chicken, fish, eggs, tofu</li>
+                    <li>Healthy fats: avocado, nuts, olive oil</li>
+                    <li>Frequent meals: 5-6 small meals daily</li>
+                </ul>
+            </div>
+            <div class="menu-recommendations">
+                <p><strong id="bmiUnderMenuLabel">🍽️ Recommended Foods:</strong></p>
+                <div class="food-tags" id="bmiUnderFoods">
+                    <span class="food-tag">Nasi Lemak</span><span class="food-tag">Roti Canai</span>
+                    <span class="food-tag">Ayam Goreng</span><span class="food-tag">Ikan Bakar</span>
+                    <span class="food-tag">Telur Rebus</span><span class="food-tag">Kacang</span>
+                    <span class="food-tag">Pisang</span><span class="food-tag">Susu</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- NORMAL -->
+        <div class="bmi-card normal">
+            <h3 id="bmiNormalTitle">✅ Normal Weight</h3>
+            <div class="bmi-range" id="bmiNormalRange">BMI 18.5 - 24.9</div>
+            <div class="bmi-description"><p><strong id="bmiNormalFocusLabel">What to focus on:</strong></p>
+                <ul id="bmiNormalList">
+                    <li>Maintain balanced portions</li>
+                    <li>Mix of carbs, protein & vegetables</li>
+                    <li>Stay active with regular exercise</li>
+                    <li>Keep consistent eating schedule</li>
+                </ul>
+            </div>
+            <div class="menu-recommendations">
+                <p><strong id="bmiNormalMenuLabel">🍽️ Recommended Foods:</strong></p>
+                <div class="food-tags" id="bmiNormalFoods">
+                    <span class="food-tag">Nasi Putih</span><span class="food-tag">Ayam Panggang</span>
+                    <span class="food-tag">Sayur Campur</span><span class="food-tag">Ikan Kukus</span>
+                    <span class="food-tag">Tauhu</span><span class="food-tag">Buah-buahan</span>
+                    <span class="food-tag">Sup Sayur</span><span class="food-tag">Oat</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ NEW: OVERWEIGHT -->
+        <div class="bmi-card overweight">
+            <h3 id="bmiOverTitle">⚠️ Overweight</h3>
+            <div class="bmi-range" id="bmiOverRange">BMI 25.0 - 29.9</div>
+            <div class="bmi-description"><p><strong id="bmiOverFocusLabel">What to focus on:</strong></p>
+                <ul id="bmiOverList">
+                    <li>Reduce portion sizes gradually</li>
+                    <li>Choose grilled over fried foods</li>
+                    <li>Increase vegetables and fibre intake</li>
+                    <li>Aim for 30 minutes exercise daily</li>
+                </ul>
+            </div>
+            <div class="menu-recommendations">
+                <p><strong id="bmiOverMenuLabel">🍽️ Recommended Foods:</strong></p>
+                <div class="food-tags" id="bmiOverFoods">
+                    <span class="food-tag">Nasi Perang</span><span class="food-tag">Ayam Panggang</span>
+                    <span class="food-tag">Ikan Kukus</span><span class="food-tag">Sayur Tumis</span>
+                    <span class="food-tag">Tauhu Rebus</span><span class="food-tag">Buah Segar</span>
+                    <span class="food-tag">Oat</span><span class="food-tag">Air Masak</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ FIXED: OBESE (was ≥25.0, now ≥30.0) -->
+        <div class="bmi-card obese">
+            <h3 id="bmiObeseTitle">🚨 Obese</h3>
+            <div class="bmi-range" id="bmiObeseRange">BMI ≥ 30.0</div>
+            <div class="bmi-description"><p><strong id="bmiObeseFocusLabel">What to focus on:</strong></p>
+                <ul id="bmiObeseList">
+                    <li>Reduce calorie intake gradually</li>
+                    <li>Avoid fried & high-sugar foods</li>
+                    <li>More vegetables & lean protein</li>
+                    <li>Smaller portions, no late-night eating</li>
+                </ul>
+            </div>
+            <div class="menu-recommendations">
+                <p><strong id="bmiObeseMenuLabel">🍽️ Recommended Foods:</strong></p>
+                <div class="food-tags" id="bmiObeseFoods">
+                    <span class="food-tag">Nasi Merah</span><span class="food-tag">Ayam Rebus</span>
+                    <span class="food-tag">Salad</span><span class="food-tag">Ikan Panggang</span>
+                    <span class="food-tag">Sayur Rebus</span><span class="food-tag">Teh O Kosong</span>
+                    <span class="food-tag">Epal</span><span class="food-tag">Air Masak</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section class="stats-section">
+    <h2 style="text-align:center;color:#333;margin-bottom:1rem;" id="statsTitle">Health Impact</h2>
+    <div class="stats-grid">
+        <div class="stat-item"><div class="stat-number">1.9B</div><div class="stat-label" id="stat1">Adults Overweight</div></div>
+        <div class="stat-item"><div class="stat-number">650M</div><div class="stat-label" id="stat2">Adults Obese</div></div>
+        <div class="stat-item"><div class="stat-number">39M</div><div class="stat-label" id="stat3">Children Overweight</div></div>
+        <div class="stat-item"><div class="stat-number">2.8M</div><div class="stat-label" id="stat4">Deaths Yearly</div></div>
+    </div>
+</section>
+
+<section class="tips-section">
+    <h2 class="section-title" id="tipsSectionTitle">Healthy Living Tips</h2>
+    <div class="tips-container">
+        <div class="tip-card"><div class="tip-icon">🥗</div><h3 id="tip1Title">Balanced Diet</h3><p id="tip1Desc">Include fruits, vegetables, whole grains, and lean proteins in every meal for optimal nutrition.</p></div>
+        <div class="tip-card"><div class="tip-icon">💧</div><h3 id="tip2Title">Stay Hydrated</h3><p id="tip2Desc">Drink at least 8 glasses of water daily. Proper hydration boosts metabolism and energy levels.</p></div>
+        <div class="tip-card"><div class="tip-icon">🏃</div><h3 id="tip3Title">Regular Exercise</h3><p id="tip3Desc">Aim for 30 minutes of physical activity daily. Even a brisk walk makes a difference!</p></div>
+        <div class="tip-card"><div class="tip-icon">😴</div><h3 id="tip4Title">Quality Sleep</h3><p id="tip4Desc">Get 7-9 hours of sleep each night. Good sleep is crucial for weight management and overall health.</p></div>
+        <div class="tip-card"><div class="tip-icon">🍬</div><h3 id="tip5Title">Limit Sugar</h3><p id="tip5Desc">Reduce intake of sugary drinks and processed foods. Choose natural sweeteners when possible.</p></div>
+        <div class="tip-card"><div class="tip-icon">📏</div><h3 id="tip6Title">Portion Control</h3><p id="tip6Desc">Use smaller plates and listen to your body's hunger cues. Quality over quantity!</p></div>
+    </div>
+</section>
+
+<section class="about">
+    <h2 id="aboutTitle">About This System</h2>
+    <p id="aboutText">This comprehensive system helps users make informed food choices using BMI-based recommendations, nutritional information, and AI-powered assistance. Track your health journey, discover personalized meal plans, and achieve your wellness goals with our intelligent chatbot support.</p>
+</section>
+
+<footer>
+    <p id="footerText">© 2026 Healthy Menu Recommendation System</p>
+    <p>Developed by Ayra Nadeera</p>
+</footer>
+
+<button id="chat-toggle">💬</button>
+<div id="chat-popup">
+    <div id="chat-header">🥗 HealthyMenu AI</div>
+    <div id="chat-messages"><div class="chat-msg bot" id="chatWelcome">Hi! I'm your healthy menu assistant 😊</div></div>
+    <div id="chat-input">
+        <input id="chat-text" data-lang-placeholder="chatPlaceholder" placeholder="Type a message..." />
+        <button onclick="sendChat()" id="chatSendBtn">Send</button>
+    </div>
+</div>
+
+<script>
+    let lang = localStorage.getItem("lang") || "en";
+
+    const text = {
+        en: {
+            navHome:"Home", navBMI:"BMI Calculator", navMenu:"Menu", navRecords:"My Records",
+            heroTitle:"Welcome to Healthy Menu System",
+            heroTagline:"Your personalized guide to healthy eating and better lifestyle",
+            heroBtn:"Get Started",
+            f1Title:"📊 BMI Calculator", f1Desc:"Calculate your BMI easily and track your health progress",
+            f2Title:"🍽️ Menu Recommendation", f2Desc:"Get personalized healthy menu based on your BMI",
+            f3Title:"📱 Nutrition Info", f3Desc:"Detailed nutrition info for Malaysian & international foods",
+            f4Title:"🤖 AI Assistant", f4Desc:"Get instant answers about nutrition and healthy eating",
+            bmiSectionTitle:"Understanding Your BMI",
+            bmiUnderTitle:"⚠️ Underweight", bmiUnderRange:"BMI < 18.5",
+            bmiUnderFocusLabel:"What to focus on:", bmiUnderMenuLabel:"🍽️ Recommended Foods:",
+            bmiNormalTitle:"✅ Normal Weight", bmiNormalRange:"BMI 18.5 - 24.9",
+            bmiNormalFocusLabel:"What to focus on:", bmiNormalMenuLabel:"🍽️ Recommended Foods:",
+            bmiOverTitle:"⚠️ Overweight", bmiOverRange:"BMI 25.0 - 29.9",
+            bmiOverFocusLabel:"What to focus on:", bmiOverMenuLabel:"🍽️ Recommended Foods:",
+            bmiObeseTitle:"🚨 Obese", bmiObeseRange:"BMI ≥ 30.0",
+            bmiObeseFocusLabel:"What to focus on:", bmiObeseMenuLabel:"🍽️ Recommended Foods:",
+            statsTitle:"Health Impact", stat1:"Adults Overweight", stat2:"Adults Obese",
+            stat3:"Children Overweight", stat4:"Deaths Yearly",
+            tipsSectionTitle:"Healthy Living Tips",
+            tip1Title:"Balanced Diet", tip1Desc:"Include fruits, vegetables, whole grains, and lean proteins in every meal for optimal nutrition.",
+            tip2Title:"Stay Hydrated", tip2Desc:"Drink at least 8 glasses of water daily. Proper hydration boosts metabolism and energy levels.",
+            tip3Title:"Regular Exercise", tip3Desc:"Aim for 30 minutes of physical activity daily. Even a brisk walk makes a difference!",
+            tip4Title:"Quality Sleep", tip4Desc:"Get 7-9 hours of sleep each night. Good sleep is crucial for weight management and overall health.",
+            tip5Title:"Limit Sugar", tip5Desc:"Reduce intake of sugary drinks and processed foods. Choose natural sweeteners when possible.",
+            tip6Title:"Portion Control", tip6Desc:"Use smaller plates and listen to your body's hunger cues. Quality over quantity!",
+            aboutTitle:"About This System",
+            aboutText:"This comprehensive system helps users make informed food choices using BMI-based recommendations, nutritional information, and AI-powered assistance. Track your health journey, discover personalized meal plans, and achieve your wellness goals with our intelligent chatbot support.",
+            footerText:"© 2026 Healthy Menu Recommendation System",
+            chatHeader:"🥗 HealthyMenu AI", chatWelcome:"Hi! I'm your healthy menu assistant 😊",
+            chatPlaceholder:"Type a message...", chatSendBtn:"Send"
+        },
+        bm: {
+            navHome:"Laman Utama", navBMI:"Kalkulator BMI", navMenu:"Menu", navRecords:"Rekod Saya",
+            heroTitle:"Selamat Datang ke Sistem Menu Sihat",
+            heroTagline:"Panduan peribadi anda ke arah pemakanan sihat dan gaya hidup lebih baik",
+            heroBtn:"Mula Sekarang",
+            f1Title:"📊 Kalkulator BMI", f1Desc:"Kira BMI anda dengan mudah dan jejaki kemajuan kesihatan",
+            f2Title:"🍽️ Cadangan Menu", f2Desc:"Dapatkan menu sihat diperibadikan berdasarkan BMI anda",
+            f3Title:"📱 Maklumat Nutrisi", f3Desc:"Maklumat nutrisi terperinci untuk makanan Malaysia & antarabangsa",
+            f4Title:"🤖 Pembantu AI", f4Desc:"Dapatkan jawapan segera tentang nutrisi dan pemakanan sihat",
+            bmiSectionTitle:"Memahami BMI Anda",
+            bmiUnderTitle:"⚠️ Berat Badan Kurang", bmiUnderRange:"BMI < 18.5",
+            bmiUnderFocusLabel:"Apa yang perlu diberi tumpuan:", bmiUnderMenuLabel:"🍽️ Makanan Disyorkan:",
+            bmiNormalTitle:"✅ Berat Badan Normal", bmiNormalRange:"BMI 18.5 - 24.9",
+            bmiNormalFocusLabel:"Apa yang perlu diberi tumpuan:", bmiNormalMenuLabel:"🍽️ Makanan Disyorkan:",
+            bmiOverTitle:"⚠️ Lebih Berat", bmiOverRange:"BMI 25.0 - 29.9",
+            bmiOverFocusLabel:"Apa yang perlu diberi tumpuan:", bmiOverMenuLabel:"🍽️ Makanan Disyorkan:",
+            bmiObeseTitle:"🚨 Obes", bmiObeseRange:"BMI ≥ 30.0",
+            bmiObeseFocusLabel:"Apa yang perlu diberi tumpuan:", bmiObeseMenuLabel:"🍽️ Makanan Disyorkan:",
+            statsTitle:"Kesan Kesihatan", stat1:"Dewasa Berlebihan Berat", stat2:"Dewasa Obes",
+            stat3:"Kanak-kanak Berlebihan Berat", stat4:"Kematian Setahun",
+            tipsSectionTitle:"Tips Hidup Sihat",
+            tip1Title:"Diet Seimbang", tip1Desc:"Masukkan buah-buahan, sayur-sayuran, bijirin penuh, dan protein tanpa lemak dalam setiap hidangan untuk nutrisi optimum.",
+            tip2Title:"Kekal Terhidrat", tip2Desc:"Minum sekurang-kurangnya 8 gelas air setiap hari. Hidrasi yang baik meningkatkan metabolisme dan tahap tenaga.",
+            tip3Title:"Senaman Berkala", tip3Desc:"Sasarkan 30 minit aktiviti fizikal setiap hari. Walaupun berjalan pantas membuat perbezaan!",
+            tip4Title:"Tidur Berkualiti", tip4Desc:"Dapatkan 7-9 jam tidur setiap malam. Tidur yang baik penting untuk pengurusan berat badan dan kesihatan keseluruhan.",
+            tip5Title:"Hadkan Gula", tip5Desc:"Kurangkan pengambilan minuman bergula dan makanan diproses. Pilih pemanis semula jadi bila boleh.",
+            tip6Title:"Kawalan Bahagian", tip6Desc:"Gunakan pinggan yang lebih kecil dan dengar isyarat lapar badan anda. Kualiti mengatasi kuantiti!",
+            aboutTitle:"Tentang Sistem Ini",
+            aboutText:"Sistem komprehensif ini membantu pengguna membuat pilihan makanan yang lebih bijak menggunakan cadangan berasaskan BMI, maklumat pemakanan, dan bantuan berkuasa AI. Jejaki perjalanan kesihatan anda, temui rancangan makanan diperibadikan, dan capai matlamat kesejahteraan anda dengan sokongan chatbot pintar kami.",
+            footerText:"© 2026 Sistem Cadangan Menu Sihat",
+            chatHeader:"🥗 AI Menu Sihat", chatWelcome:"Hai! Saya pembantu menu sihat anda 😊",
+            chatPlaceholder:"Taip mesej...", chatSendBtn:"Hantar"
+        }
+    };
+
+    function applyLang() {
+        const t = text[lang];
+        document.querySelectorAll('[data-lang]').forEach(el => { const k = el.getAttribute('data-lang'); if (t[k]) el.textContent = t[k]; });
+        for (const id in t) { const el = document.getElementById(id); if (el) { if (el.tagName === 'A' || el.tagName === 'BUTTON') el.textContent = t[id]; else el.innerText = t[id]; } }
+        document.querySelectorAll('[data-lang-placeholder]').forEach(el => { const k = el.getAttribute('data-lang-placeholder'); if (t[k]) el.placeholder = t[k]; });
+
+        if (lang === "en") {
+            document.getElementById("bmiUnderList").innerHTML = `<li>Increase calorie intake with nutrient-dense foods</li><li>Add more protein: chicken, fish, eggs, tofu</li><li>Healthy fats: avocado, nuts, olive oil</li><li>Frequent meals: 5-6 small meals daily</li>`;
+            document.getElementById("bmiNormalList").innerHTML = `<li>Maintain balanced portions</li><li>Mix of carbs, protein & vegetables</li><li>Stay active with regular exercise</li><li>Keep consistent eating schedule</li>`;
+            document.getElementById("bmiOverList").innerHTML = `<li>Reduce portion sizes gradually</li><li>Choose grilled over fried foods</li><li>Increase vegetables and fibre intake</li><li>Aim for 30 minutes exercise daily</li>`;
+            document.getElementById("bmiObeseList").innerHTML = `<li>Reduce calorie intake gradually</li><li>Avoid fried & high-sugar foods</li><li>More vegetables & lean protein</li><li>Smaller portions, no late-night eating</li>`;
+            document.getElementById("bmiUnderFoods").innerHTML = `<span class="food-tag">Coconut Rice</span><span class="food-tag">Flatbread</span><span class="food-tag">Fried Chicken</span><span class="food-tag">Grilled Fish</span><span class="food-tag">Boiled Eggs</span><span class="food-tag">Nuts</span><span class="food-tag">Banana</span><span class="food-tag">Milk</span>`;
+            document.getElementById("bmiNormalFoods").innerHTML = `<span class="food-tag">White Rice</span><span class="food-tag">Roasted Chicken</span><span class="food-tag">Mixed Vegetables</span><span class="food-tag">Steamed Fish</span><span class="food-tag">Tofu</span><span class="food-tag">Fruits</span><span class="food-tag">Vegetable Soup</span><span class="food-tag">Oats</span>`;
+            document.getElementById("bmiOverFoods").innerHTML = `<span class="food-tag">Brown Rice</span><span class="food-tag">Grilled Chicken</span><span class="food-tag">Steamed Fish</span><span class="food-tag">Stir-fried Veggies</span><span class="food-tag">Boiled Tofu</span><span class="food-tag">Fresh Fruits</span><span class="food-tag">Oats</span><span class="food-tag">Water</span>`;
+            document.getElementById("bmiObeseFoods").innerHTML = `<span class="food-tag">Brown Rice</span><span class="food-tag">Boiled Chicken</span><span class="food-tag">Salad</span><span class="food-tag">Grilled Fish</span><span class="food-tag">Boiled Vegetables</span><span class="food-tag">Plain Tea</span><span class="food-tag">Apple</span><span class="food-tag">Water</span>`;
+        } else {
+            document.getElementById("bmiUnderList").innerHTML = `<li>Tingkatkan pengambilan kalori dengan makanan berkhasiat</li><li>Tambah protein: ayam, ikan, telur, tauhu</li><li>Lemak sihat: avokado, kacang, minyak zaitun</li><li>Makan kerap: 5-6 hidangan kecil sehari</li>`;
+            document.getElementById("bmiNormalList").innerHTML = `<li>Kekalkan bahagian seimbang</li><li>Campuran karbohidrat, protein & sayur</li><li>Aktif dengan senaman berkala</li><li>Jadual makan konsisten</li>`;
+            document.getElementById("bmiOverList").innerHTML = `<li>Kurangkan saiz bahagian secara beransur</li><li>Pilih makanan bakar berbanding goreng</li><li>Tingkatkan sayur dan pengambilan serat</li><li>Sasarkan 30 minit senaman setiap hari</li>`;
+            document.getElementById("bmiObeseList").innerHTML = `<li>Kurangkan kalori secara beransur</li><li>Elak makanan goreng & tinggi gula</li><li>Lebih sayur & protein tanpa lemak</li><li>Bahagian kecil, jangan makan lewat malam</li>`;
+            document.getElementById("bmiUnderFoods").innerHTML = `<span class="food-tag">Nasi Lemak</span><span class="food-tag">Roti Canai</span><span class="food-tag">Ayam Goreng</span><span class="food-tag">Ikan Bakar</span><span class="food-tag">Telur Rebus</span><span class="food-tag">Kacang</span><span class="food-tag">Pisang</span><span class="food-tag">Susu</span>`;
+            document.getElementById("bmiNormalFoods").innerHTML = `<span class="food-tag">Nasi Putih</span><span class="food-tag">Ayam Panggang</span><span class="food-tag">Sayur Campur</span><span class="food-tag">Ikan Kukus</span><span class="food-tag">Tauhu</span><span class="food-tag">Buah-buahan</span><span class="food-tag">Sup Sayur</span><span class="food-tag">Oat</span>`;
+            document.getElementById("bmiOverFoods").innerHTML = `<span class="food-tag">Nasi Perang</span><span class="food-tag">Ayam Panggang</span><span class="food-tag">Ikan Kukus</span><span class="food-tag">Sayur Tumis</span><span class="food-tag">Tauhu Rebus</span><span class="food-tag">Buah Segar</span><span class="food-tag">Oat</span><span class="food-tag">Air Masak</span>`;
+            document.getElementById("bmiObeseFoods").innerHTML = `<span class="food-tag">Nasi Merah</span><span class="food-tag">Ayam Rebus</span><span class="food-tag">Salad</span><span class="food-tag">Ikan Panggang</span><span class="food-tag">Sayur Rebus</span><span class="food-tag">Teh O Kosong</span><span class="food-tag">Epal</span><span class="food-tag">Air Masak</span>`;
+        }
+        const btnText = lang === "en" ? "🌐 EN" : "🌐 BM";
+        const btn = document.getElementById("langBtn"); const btnM = document.getElementById("langBtnMobile");
+        if (btn) btn.innerText = btnText; if (btnM) btnM.innerText = btnText;
+    }
+
+    function toggleLang() {
+        lang = lang === "en" ? "bm" : "en";
+        localStorage.setItem("lang", lang);
+        applyLang();
+    }
+
+    function logout() {
+        localStorage.removeItem("userBMI"); localStorage.removeItem("bmiDate"); localStorage.removeItem("user_email");
+        sessionStorage.clear(); window.location.href = "/login.html";
+    }
+
+    const menuToggle = document.getElementById("menuToggle");
+    const navLinks = document.getElementById("navLinks");
+    menuToggle.addEventListener("click", (e) => { e.stopPropagation(); navLinks.classList.toggle("show"); });
+    document.addEventListener("click", () => { navLinks.classList.remove("show"); });
+    navLinks.addEventListener("click", (e) => { e.stopPropagation(); });
+
+    const toggleBtn = document.getElementById("chat-toggle");
+    const popup = document.getElementById("chat-popup");
+    const messagesBox = document.getElementById("chat-messages");
+    const inputBox = document.getElementById("chat-text");
+    toggleBtn.onclick = () => { popup.style.display = popup.style.display === "flex" ? "none" : "flex"; };
+
+    function addChat(txt, type) {
+        const div = document.createElement("div");
+        div.className = "chat-msg " + type;
+        div.innerHTML = txt.replace(/\n/g, "<br>");
+        messagesBox.appendChild(div);
+        messagesBox.scrollTop = messagesBox.scrollHeight;
+    }
+
+    async function sendChat() {
+        const message = inputBox.value.trim(); if (!message) return;
+        addChat(message, "user"); inputBox.value = "";
+        const typing = document.createElement("div"); typing.className = "chat-msg bot"; typing.textContent = lang === "en" ? "AI is typing..." : "AI sedang menaip..."; messagesBox.appendChild(typing);
+        try {
+            const res = await fetch("http://localhost:3000/chatbot/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message }) });
+            const data = await res.json(); messagesBox.removeChild(typing);
+            addChat(data.reply || (lang === "en" ? "No response from AI." : "Tiada jawapan dari AI."), "bot");
+        } catch (err) { messagesBox.removeChild(typing); addChat(lang === "en" ? "Server error. Please try again." : "Ralat pelayan. Sila cuba lagi.", "bot"); }
+    }
+    inputBox.addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChat(); });
+    applyLang();
+</script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sign Up - HealthyMenu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.signup-container {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  overflow: hidden;
+  max-width: 900px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.signup-left {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.signup-left .icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+}
+
+.signup-left h1 {
+  font-size: 2.4rem;
+  margin-bottom: 1rem;
+}
+
+.signup-left p {
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+.signup-right {
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.signup-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.signup-header h2 {
+  color: #333;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.signup-header p {
+  color: #666;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 10px;
+  border: 2px solid #e0e0e0;
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.signup-btn {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.signup-btn:hover {
+  transform: translateY(-2px);
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #666;
+}
+
+.login-link a {
+  color: #667eea;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+.alert {
+  padding: 0.8rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  display: none;
+}
+
+.alert.error {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.alert.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+@media (max-width: 768px) {
+  .signup-container {
+    grid-template-columns: 1fr;
+  }
+  .signup-left {
+    padding: 2rem;
+  }
+  .signup-left .icon {
+    font-size: 3rem;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="signup-container">
+
+  <!-- LEFT -->
+  <div class="signup-left">
+    <div class="icon">🥗</div>
+    <h1>HealthyMenu</h1>
+    <p>Create your account and start tracking your healthy lifestyle today.</p>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="signup-right">
+    <div class="signup-header">
+      <h2>Create Account</h2>
+      <p>Sign up as a new user</p>
+    </div>
+
+    <div id="alert" class="alert"></div>
+
+    <form onsubmit="handleSignup(event)">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="Enter your email" required>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Create password" required>
+      </div>
+
+      <button type="submit" class="signup-btn">
+        Sign Up
+      </button>
+    </form>
+
+    <div class="login-link">
+      Already have an account? <a href="login.html">Login</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showAlert(message, type) {
+  const alert = document.getElementById("alert");
+  alert.textContent = message;
+  alert.className = "alert " + type;
+  alert.style.display = "block";
+
+  setTimeout(() => {
+    alert.style.display = "none";
+  }, 3000);
+}
+
+async function handleSignup(event) {
+  event.preventDefault();
+
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  if (!email || !password) {
+    showAlert("Please fill all fields", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:3000/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showAlert(data.error || "Signup failed", "error");
+      return;
+    }
+
+    // CLEAR localStorage sebelum redirect
+    localStorage.clear();
+    
+    showAlert("Signup successful! Redirecting...", "success");
+
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 1000);
+
+  } catch (err) {
+    showAlert("Server error. Make sure server is running!", "error");
+  }
+}
+</script>
+</body>
+</html>

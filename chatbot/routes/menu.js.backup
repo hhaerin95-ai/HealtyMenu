@@ -1,0 +1,205 @@
+const express = require("express");
+const router = express.Router();
+const db = require("../db");
+
+/* ================================
+   1️⃣ GET 7-DAY MEAL PLAN BY BMI
+================================ */
+router.get("/7-day-plan", (req, res) => {
+  const { bmi, budget, pcos } = req.query;
+  
+  if (!bmi) {
+    return res.status(400).json({ error: "BMI required" });
+  }
+
+  const bmiValue = parseFloat(bmi);
+  let bmiCategory;
+
+  if (bmiValue < 18.5) bmiCategory = "Underweight";
+  else if (bmiValue < 25) bmiCategory = "Normal";
+  else if (bmiValue < 30) bmiCategory = "Overweight";
+  else bmiCategory = "Obese";
+
+  // Build query with filters
+  let query = `
+    SELECT * FROM recipes 
+    WHERE bmi_category = ?
+  `;
+  
+  const params = [bmiCategory];
+
+  // Budget filter
+  if (budget) {
+    query += ` AND budget_category = ?`;
+    params.push(budget);
+  }
+
+  // PCOS filter
+  if (pcos === 'true' || pcos === '1') {
+    query += ` AND is_pcos_friendly = 1`;
+  }
+
+  db.all(query, params, (err, meals) => {
+    if (err) {
+      console.error("❌ Query error:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (!meals || meals.length === 0) {
+      return res.json({ 
+        success: false, 
+        message: "No meals found for this criteria" 
+      });
+    }
+
+    // Generate 7-day plan
+    const days = ['Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu', 'Ahad'];
+    const plan = [];
+
+    // Separate meals by category
+    const breakfasts = meals.filter(m => m.category === 'breakfast');
+    const lunches = meals.filter(m => m.category === 'lunch');
+    const dinners = meals.filter(m => m.category === 'dinner');
+    const snacks = meals.filter(m => m.category === 'snack');
+
+    for (let i = 0; i < 7; i++) {
+      const day = {
+        day: i + 1,
+        dayName: days[i],
+        meals: {
+          breakfast: getRandomMeal(breakfasts, i),
+          morningSnack: getRandomMeal(snacks, i),
+          lunch: getRandomMeal(lunches, i),
+          afternoonSnack: getRandomMeal(snacks, i + 7), // Different snack
+          dinner: getRandomMeal(dinners, i)
+        }
+      };
+
+      // Calculate daily totals
+      day.totals = {
+        calories: Math.round(
+          (day.meals.breakfast?.calories || 0) +
+          (day.meals.morningSnack?.calories || 0) +
+          (day.meals.lunch?.calories || 0) +
+          (day.meals.afternoonSnack?.calories || 0) +
+          (day.meals.dinner?.calories || 0)
+        ),
+        cost: parseFloat((
+          (day.meals.breakfast?.price_rm || 0) +
+          (day.meals.morningSnack?.price_rm || 0) +
+          (day.meals.lunch?.price_rm || 0) +
+          (day.meals.afternoonSnack?.price_rm || 0) +
+          (day.meals.dinner?.price_rm || 0)
+        ).toFixed(2))
+      };
+
+      plan.push(day);
+    }
+
+    // Calculate weekly summary
+    const summary = {
+      totalCost: plan.reduce((sum, day) => sum + day.totals.cost, 0).toFixed(2),
+      avgDailyCost: (plan.reduce((sum, day) => sum + day.totals.cost, 0) / 7).toFixed(2),
+      avgDailyCalories: Math.round(plan.reduce((sum, day) => sum + day.totals.calories, 0) / 7)
+    };
+
+    res.json({
+      success: true,
+      bmiCategory,
+      plan,
+      summary
+    });
+  });
+});
+
+// Helper function to get random meal (with rotation to avoid repeats)
+function getRandomMeal(meals, dayIndex) {
+  if (!meals || meals.length === 0) return null;
+  const index = dayIndex % meals.length;
+  return meals[index];
+}
+
+/* ================================
+   2️⃣ SEARCH MENU (existing + filter by budget/pcos)
+================================ */
+router.get("/search", (req, res) => {
+  const { q, bmi, budget, pcos } = req.query;
+
+  if (!q) {
+    return res.json({ success: true, meals: [] });
+  }
+
+  const bmiValue = parseFloat(bmi);
+  let bmiCategory;
+
+  if (bmiValue < 18.5) bmiCategory = "Underweight";
+  else if (bmiValue < 25) bmiCategory = "Normal";
+  else if (bmiValue < 30) bmiCategory = "Overweight";
+  else bmiCategory = "Obese";
+
+  let query = `
+    SELECT * FROM recipes 
+    WHERE bmi_category = ?
+    AND (name LIKE ? OR name_ms LIKE ?)
+  `;
+
+  const searchTerm = `%${q}%`;
+  const params = [bmiCategory, searchTerm, searchTerm];
+
+  // Budget filter
+  if (budget) {
+    query += ` AND budget_category = ?`;
+    params.push(budget);
+  }
+
+  // PCOS filter
+  if (pcos === 'true' || pcos === '1') {
+    query += ` AND is_pcos_friendly = 1`;
+  }
+
+  query += ` LIMIT 12`;
+
+  db.all(query, params, (err, meals) => {
+    if (err) {
+      console.error("❌ Search error:", err);
+      return res.status(500).json({ error: "Search failed" });
+    }
+
+    // Format for frontend
+    const formattedMeals = meals.map(m => ({
+      id: m.id,
+      name: m.name,
+      mealType: m.category,
+      calories: Math.round(m.calories),
+      protein: Math.round(m.protein || 0),
+      carbs: Math.round(m.carbs || 0),
+      fat: Math.round(m.fat || 0),
+      price_rm: m.price_rm,
+      budget_category: m.budget_category,
+      is_pcos_friendly: m.is_pcos_friendly,
+      image: m.image || `https://via.placeholder.com/300x200?text=${encodeURIComponent(m.name)}`,
+      recipe: m.recipe
+    }));
+
+    res.json({
+      success: true,
+      meals: formattedMeals
+    });
+  });
+});
+
+/* ================================
+   3️⃣ GET BUDGET CATEGORIES
+================================ */
+router.get("/budget-options", (req, res) => {
+  res.json({
+    success: true,
+    options: [
+      { value: 'ekonomi', label_en: 'Budget (RM 5-7)', label_ms: 'Ekonomi (RM 5-7)' },
+      { value: 'sederhana', label_en: 'Moderate (RM 8-12)', label_ms: 'Sederhana (RM 8-12)' },
+      { value: 'premium', label_en: 'Premium (RM 15+)', label_ms: 'Premium (RM 15+)' }
+    ]
+  });
+});
+
+module.exports = router;
