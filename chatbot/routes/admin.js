@@ -2,62 +2,47 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db");
 
-// 👥 TOTAL USERS
-router.get("/user-count", (req, res) => {
-  db.get(
-    "SELECT COUNT(*) AS total FROM users",
-    [],
-    (err, row) => {
-      if (err) {
-        console.error("❌ Failed to count users:", err);
-        return res.status(500).json({ error: "DB error" });
-      }
+router.get("/user-count", async (req, res) => {
+  try {
+    const result = await db.query("SELECT COUNT(*) AS total FROM users");
+    res.json({ total: result.rows[0].total });
+  } catch (err) {
+    res.status(500).json({ error: "DB error" });
+  }
+});
 
-      res.json({ total: row.total });
-    }
-  );
+router.get("/avg-calories", async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT ROUND(AVG(total_calories), 0) AS avgcalories
+      FROM (
+        SELECT user_email, SUM(calories) AS total_calories
+        FROM food_records
+        GROUP BY user_email
+      ) sub
+    `);
+    res.json({ avgCalories: result.rows[0].avgcalories || 0 });
+  } catch (err) {
+    res.status(500).json({ error: "DB error" });
+  }
 });
-router.get("/avg-calories", (req, res) => {
-  db.get(
-    `
-    SELECT 
-      ROUND(AVG(totalCalories), 0) AS avgCalories
-    FROM (
-      SELECT user_email, SUM(calories) AS totalCalories
-      FROM food_records
-      GROUP BY user_email
-    )
-    `,
-    [],
-    (err, row) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "DB error" });
-      }
-      res.json({ avgCalories: row?.avgCalories || 0 });
-    }
-  );
+
+router.get("/users", async (req, res) => {
+  try {
+    const result = await db.query("SELECT id, email, role FROM users ORDER BY id DESC");
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: "DB error" });
+  }
 });
-// 👥 Get all users
-router.get("/users", (req, res) => {
-  db.all(
-    "SELECT id, email, role FROM users ORDER BY id DESC",
-    [],
-    (err, rows) => {
-      if (err) return res.status(500).json({ error: "DB error" });
-      res.json(rows);
-    }
-  );
-});
-router.get("/bmi", (req, res) => {
-  db.all(
-    "SELECT * FROM bmi_records ORDER BY date DESC",
-    [],
-    (err, rows) => {
-      if (err) return res.status(500).json(err);
-      res.json(rows);
-    }
-  );
+
+router.get("/bmi", async (req, res) => {
+  try {
+    const result = await db.query("SELECT * FROM bmi_records ORDER BY date DESC");
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: "DB error" });
+  }
 });
 
 module.exports = router;
