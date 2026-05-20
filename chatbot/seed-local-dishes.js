@@ -2,7 +2,7 @@
 // Run: node seed-local-dishes.js
 // Adds authentic LOCAL Malaysian dishes for all PCOS & BMI combinations
 
-const db = require('./db');
+const pool = require('./db');
 
 const localDishes = [
   
@@ -106,41 +106,27 @@ const localDishes = [
 
 ];
 
-// ── INSERT ALL ──
-const stmt = db.prepare(`
-  INSERT INTO recipes 
-  (name, name_ms, category, bmi_category, calories, protein, carbs, fat, price_rm, budget_category, is_pcos_friendly, is_low_gi, cuisine_type, recipe)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-`);
+const run = async () => {
+  let inserted = 0;
+  let skipped = 0;
 
-let inserted = 0;
-let skipped  = 0;
+  for (const m of localDishes) {
+    const check = await pool.query(
+      `SELECT id FROM recipes WHERE name = $1 AND bmi_category = $2 AND cuisine_type = $3`,
+      [m.name, m.bmi_category, m.cuisine_type || null]
+    );
+    if (check.rows.length > 0) { skipped++; continue; }
 
-localDishes.forEach(m => {
-  db.get(
-    `SELECT id FROM recipes WHERE name = ? AND bmi_category = ? AND is_pcos_friendly = ?`,
-    [m.name, m.bmi_category, m.is_pcos_friendly],
-    (err, row) => {
-      if (row) {
-        skipped++;
-        console.log(`⏭️  [${m.bmi_category}][PCOS:${m.is_pcos_friendly}] ${m.name} - Already exists`);
-        return;
-      }
-      stmt.run(
-        m.name, m.name_ms, m.category, m.bmi_category,
-        m.calories, m.protein, m.carbs, m.fat,
-        m.price_rm, m.budget_category, m.is_pcos_friendly, m.is_low_gi, m.cuisine_type,
-        m.recipe,
-        function(err) {
-          if (err) {
-            console.error(`❌ Failed: ${m.name}`, err.message);
-          } else {
-            inserted++;
-            console.log(`✅ [${m.bmi_category}][PCOS:${m.is_pcos_friendly}] ${m.name}`);
-          }
-        }
-      );
-    }
-  );
-});
+    await pool.query(
+      `INSERT INTO recipes (name, name_ms, category, bmi_category, calories, protein, carbs, fat, price_rm, budget_category, is_pcos_friendly, is_low_gi, cuisine_type, recipe)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
+      [m.name, m.name_ms, m.category, m.bmi_category, m.calories, m.protein, m.carbs, m.fat, m.price_rm, m.budget_category, m.is_pcos_friendly, m.is_low_gi, m.cuisine_type || null, m.recipe]
+    );
+    inserted++;
+    console.log(`✅ ${m.name}`);
+  }
+  console.log(`\nDone: ${inserted} inserted, ${skipped} skipped`);
+  process.exit(0);
+};
 
+run().catch(e => { console.error('❌', e.message); process.exit(1); });

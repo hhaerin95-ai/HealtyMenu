@@ -11,22 +11,21 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 // AUTO-SEED RECIPES
-const seedRecipes = async () => {
+const autoSeed = async () => {
   try {
     const result = await db.query("SELECT COUNT(*) as count FROM recipes");
     if (parseInt(result.rows[0].count) === 0) {
       console.log("🌱 Seeding recipes...");
-      require("./seed-local-dishes");
-      require("./seed-more-meals");
-      require("./seed-missing-meals");
-      require("./seed-pcos-western-meals");
+      require("./seed-pg");
+    } else {
+      console.log("✅ Recipes already seeded:", result.rows[0].count);
     }
   } catch (err) {
     console.error("❌ Seed check error:", err);
   }
 };
 
-setTimeout(seedRecipes, 3000);
+setTimeout(autoSeed, 3000);
 
 app.use((req, res, next) => {
   console.log("📡", req.method, req.path);

@@ -1,155 +1,110 @@
 // seed-missing-meals.js
-// Run: node seed-missing-meals.js
-// Adds missing PCOS meals for Underweight/Normal, and regular meals for Obese/Overweight
-
-const db = require('./db');
+const pool = require('./db');
 
 const meals = [
-
-  // ============================================================
-  // UNDERWEIGHT + PCOS (is_pcos_friendly = 1, is_low_gi = 1)
-  // ============================================================
-
-  // breakfast
   { name: "Oat Porridge with Banana", name_ms: "Bubur Oat dengan Pisang", category: "breakfast", bmi_category: "Underweight", calories: 320, protein: 12, carbs: 52, fat: 7, price_rm: 5.00, budget_category: "ekonomi", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Masak oat dengan susu. Hiris pisang di atas. Taburkan biji chia." },
   { name: "Whole Grain Toast with Avocado & Egg", name_ms: "Roti Bijirin dengan Avokado & Telur", category: "breakfast", bmi_category: "Underweight", calories: 380, protein: 16, carbs: 38, fat: 18, price_rm: 8.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Bakar roti bijirin. Lenyek avokado, letak atas roti. Goreng telur, letak atas sekali." },
   { name: "Greek Yogurt with Mixed Berries", name_ms: "Yogurt Greek dengan Beri Campur", category: "breakfast", bmi_category: "Underweight", calories: 290, protein: 18, carbs: 35, fat: 6, price_rm: 9.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Masukkan yogurt Greek dalam mangkuk. Tabur beri campur dan madu sikit." },
   { name: "Smoothie Bowl (Spinach & Banana)", name_ms: "Mangkuk Smoothie Bayam & Pisang", category: "breakfast", bmi_category: "Underweight", calories: 350, protein: 10, carbs: 58, fat: 8, price_rm: 10.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Blend bayam, pisang, susu badam. Tuang dalam mangkuk. Hiaskan dengan granola dan buah." },
   { name: "Roti Wholemeal with Peanut Butter", name_ms: "Roti Wholemeal dengan Mentega Kacang", category: "breakfast", bmi_category: "Underweight", calories: 340, protein: 14, carbs: 42, fat: 13, price_rm: 5.00, budget_category: "ekonomi", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Sapu mentega kacang semula jadi atas roti wholemeal. Boleh tambah hirisan pisang." },
-
-  // lunch
   { name: "Brown Rice with Grilled Chicken & Veg", name_ms: "Nasi Perang dengan Ayam Panggang & Sayur", category: "lunch", bmi_category: "Underweight", calories: 480, protein: 35, carbs: 52, fat: 10, price_rm: 9.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Grill ayam dengan rempah. Masak nasi perang. Serve dengan sayur rebus." },
   { name: "Quinoa Salad with Tuna", name_ms: "Salad Quinoa dengan Tuna", category: "lunch", bmi_category: "Underweight", calories: 420, protein: 32, carbs: 44, fat: 11, price_rm: 12.00, budget_category: "premium", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Masak quinoa. Campurkan tuna tin, timun, tomato. Perasakan dengan lemon dan minyak zaitun." },
   { name: "Soba Noodle with Tofu & Veg", name_ms: "Mi Soba dengan Tauhu & Sayur", category: "lunch", bmi_category: "Underweight", calories: 400, protein: 20, carbs: 55, fat: 9, price_rm: 10.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Rebus mi soba. Goreng tauhu dan sayur dengan sos kicap rendah sodium." },
   { name: "Lentil Soup with Wholemeal Bread", name_ms: "Sup Lentil dengan Roti Wholemeal", category: "lunch", bmi_category: "Underweight", calories: 390, protein: 22, carbs: 58, fat: 6, price_rm: 8.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Rebus lentil dengan bawang, tomato, rempah. Serve dengan roti wholemeal." },
   { name: "Grilled Fish with Brown Rice & Ulam", name_ms: "Ikan Bakar dengan Nasi Perang & Ulam", category: "lunch", bmi_category: "Underweight", calories: 450, protein: 38, carbs: 48, fat: 8, price_rm: 11.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Perap ikan dengan kunyit, garam. Bakar hingga masak. Serve dengan nasi perang dan ulam segar." },
-
-  // dinner
   { name: "Steamed Chicken with Veg & Brown Rice", name_ms: "Ayam Kukus dengan Sayur & Nasi Perang", category: "dinner", bmi_category: "Underweight", calories: 460, protein: 36, carbs: 50, fat: 9, price_rm: 10.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Kukus ayam dengan halia dan bawang putih. Rebus sayur. Serve dengan nasi perang." },
   { name: "Baked Salmon with Sweet Potato", name_ms: "Salmon Bakar dengan Keledek", category: "dinner", bmi_category: "Underweight", calories: 520, protein: 40, carbs: 42, fat: 16, price_rm: 18.00, budget_category: "premium", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Perap salmon dengan lemon dan herbs. Bakar 200°C selama 15 minit. Serve dengan keledek bakar." },
   { name: "Stir Fry Tofu with Broccoli & Brown Rice", name_ms: "Tauhu Goreng dengan Brokoli & Nasi Perang", category: "dinner", bmi_category: "Underweight", calories: 410, protein: 22, carbs: 52, fat: 11, price_rm: 8.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Goreng tauhu hingga keemasan. Masak brokoli dengan bawang putih. Campurkan, serve dengan nasi perang." },
   { name: "Chicken Soup with Vegetables", name_ms: "Sup Ayam dengan Sayur-sayuran", category: "dinner", bmi_category: "Underweight", calories: 380, protein: 30, carbs: 32, fat: 10, price_rm: 9.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Rebus ayam dengan lobak, saderi, bawang. Perasakan dengan garam dan lada." },
   { name: "Whole Wheat Pasta with Grilled Chicken", name_ms: "Pasta Gandum Penuh dengan Ayam Panggang", category: "dinner", bmi_category: "Underweight", calories: 490, protein: 34, carbs: 58, fat: 12, price_rm: 14.00, budget_category: "premium", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Rebus pasta gandum penuh. Grill ayam. Campurkan dengan sos tomato rendah sodium dan sayur." },
-
-  // snack
   { name: "Apple with Almond Butter", name_ms: "Epal dengan Mentega Badam", category: "snack", bmi_category: "Underweight", calories: 200, protein: 5, carbs: 28, fat: 9, price_rm: 5.00, budget_category: "ekonomi", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Hiris epal. Serve dengan 1 sudu mentega badam." },
   { name: "Mixed Nuts & Seeds", name_ms: "Kacang & Biji Campur", category: "snack", bmi_category: "Underweight", calories: 220, protein: 7, carbs: 12, fat: 18, price_rm: 4.00, budget_category: "ekonomi", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Campurkan badam, walnut, biji labu dan biji bunga matahari." },
   { name: "Chia Seed Pudding", name_ms: "Puding Biji Chia", category: "snack", bmi_category: "Underweight", calories: 240, protein: 8, carbs: 30, fat: 10, price_rm: 6.00, budget_category: "ekonomi", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Rendam biji chia dalam susu badam semalaman. Tambah madu dan buah segar sebelum makan." },
   { name: "Edamame", name_ms: "Edamame", category: "snack", bmi_category: "Underweight", calories: 180, protein: 14, carbs: 16, fat: 6, price_rm: 5.00, budget_category: "ekonomi", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Rebus edamame dengan sedikit garam. Serve suam atau sejuk." },
   { name: "Hummus with Carrot Sticks", name_ms: "Hummus dengan Lobak Merah", category: "snack", bmi_category: "Underweight", calories: 190, protein: 7, carbs: 24, fat: 8, price_rm: 7.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Blend chickpeas dengan tahini, lemon, bawang putih. Serve dengan lobak merah hiris." },
-
-  // ============================================================
-  // NORMAL + PCOS — tambah lagi (existing 6, add 14 more)
-  // ============================================================
-
   { name: "Oat with Chia & Blueberry", name_ms: "Oat dengan Chia & Blueberry", category: "breakfast", bmi_category: "Normal", calories: 300, protein: 11, carbs: 48, fat: 7, price_rm: 7.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Masak oat. Tambah biji chia dan blueberry segar. Drizzle madu." },
   { name: "Scrambled Egg with Wholemeal Toast", name_ms: "Telur Scramble dengan Roti Wholemeal", category: "breakfast", bmi_category: "Normal", calories: 320, protein: 18, carbs: 34, fat: 12, price_rm: 6.00, budget_category: "ekonomi", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Pukul 2 biji telur. Masak perlahan dengan sedikit mentega. Serve dengan roti wholemeal." },
   { name: "Banana Oat Smoothie", name_ms: "Smoothie Oat Pisang", category: "breakfast", bmi_category: "Normal", calories: 280, protein: 10, carbs: 50, fat: 5, price_rm: 5.00, budget_category: "ekonomi", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Blend pisang, oat, susu rendah lemak dan sedikit madu." },
-
   { name: "Brown Rice with Grilled Fish & Ulam", name_ms: "Nasi Perang dengan Ikan Bakar & Ulam", category: "lunch", bmi_category: "Normal", calories: 430, protein: 34, carbs: 46, fat: 9, price_rm: 10.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Bakar ikan kembung dengan kunyit. Masak nasi perang. Serve dengan ulam dan sambal belacan sikit." },
   { name: "Chicken & Veg Stir Fry with Brown Rice", name_ms: "Ayam & Sayur Goreng dengan Nasi Perang", category: "lunch", bmi_category: "Normal", calories: 410, protein: 30, carbs: 48, fat: 10, price_rm: 9.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Goreng ayam dengan bawang, capsicum, brokoli. Guna sos tiram rendah sodium. Serve dengan nasi perang." },
   { name: "Tuna Salad Wrap (Wholemeal)", name_ms: "Wrap Salad Tuna (Wholemeal)", category: "lunch", bmi_category: "Normal", calories: 370, protein: 28, carbs: 38, fat: 10, price_rm: 8.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Campurkan tuna, timun, tomato, yogurt greek. Balut dalam tortilla wholemeal." },
-
   { name: "Grilled Chicken with Salad & Quinoa", name_ms: "Ayam Panggang dengan Salad & Quinoa", category: "dinner", bmi_category: "Normal", calories: 420, protein: 36, carbs: 38, fat: 11, price_rm: 13.00, budget_category: "premium", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Grill ayam. Masak quinoa. Serve dengan salad hijau dan dressing lemon." },
   { name: "Steamed Fish with Tofu & Veg", name_ms: "Ikan Kukus dengan Tauhu & Sayur", category: "dinner", bmi_category: "Normal", calories: 350, protein: 32, carbs: 22, fat: 9, price_rm: 11.00, budget_category: "sederhana", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Kukus ikan siakap dengan halia, daun bawang. Serve dengan tauhu kukus dan sayur rebus." },
-  { name: "Vegetable Curry with Brown Rice", name_ms: "Kari Sayur dengan Nasi Perang", category: "dinner", bmi_category: "Normal", calories: 380, protein: 14, carbs: 58, fat: 10, price_rm: 7.00, budget_category: "ekonomi", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Masak kari sayur campur — lobak, kentang, kacang buncis dengan santan rendah lemak. Serve dengan nasi perang." },
-
+  { name: "Vegetable Curry with Brown Rice", name_ms: "Kari Sayur dengan Nasi Perang", category: "dinner", bmi_category: "Normal", calories: 380, protein: 14, carbs: 58, fat: 10, price_rm: 7.00, budget_category: "ekonomi", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Masak kari sayur campur dengan santan rendah lemak. Serve dengan nasi perang." },
   { name: "Greek Yogurt with Flaxseed", name_ms: "Yogurt Greek dengan Biji Flax", category: "snack", bmi_category: "Normal", calories: 160, protein: 12, carbs: 16, fat: 5, price_rm: 5.00, budget_category: "ekonomi", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Masukkan yogurt greek dalam mangkuk. Taburkan biji flax dan sedikit madu." },
   { name: "Roasted Chickpeas", name_ms: "Chickpeas Bakar", category: "snack", bmi_category: "Normal", calories: 190, protein: 10, carbs: 28, fat: 5, price_rm: 4.00, budget_category: "ekonomi", is_pcos_friendly: 1, is_low_gi: 1, recipe: "Perap chickpeas dengan minyak zaitun dan rempah. Bakar 200°C selama 25 minit." },
-
-  // ============================================================
-  // OVERWEIGHT + REGULAR (is_pcos_friendly = 0)
-  // ============================================================
-
   { name: "Nasi Lemak Biasa", name_ms: "Nasi Lemak Biasa", category: "breakfast", bmi_category: "Overweight", calories: 400, protein: 12, carbs: 55, fat: 15, price_rm: 5.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Nasi lemak standard dengan sambal, telur rebus, ikan bilis dan timun." },
   { name: "Roti Canai with Dhal", name_ms: "Roti Canai dengan Dhal", category: "breakfast", bmi_category: "Overweight", calories: 380, protein: 10, carbs: 60, fat: 12, price_rm: 4.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Roti canai panas dengan kuah dhal dan kuah kari." },
   { name: "Nasi Goreng Ayam", name_ms: "Nasi Goreng Ayam", category: "breakfast", bmi_category: "Overweight", calories: 450, protein: 18, carbs: 58, fat: 16, price_rm: 6.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Goreng nasi semalam dengan ayam, telur, sos tiram dan kicap." },
   { name: "Mihun Goreng", name_ms: "Mihun Goreng", category: "breakfast", bmi_category: "Overweight", calories: 390, protein: 14, carbs: 56, fat: 13, price_rm: 5.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Goreng mihun dengan udang, telur, sayur dan sos." },
   { name: "Toast with Kaya & Butter", name_ms: "Roti Bakar dengan Kaya & Mentega", category: "breakfast", bmi_category: "Overweight", calories: 320, protein: 7, carbs: 48, fat: 11, price_rm: 3.50, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Bakar roti. Sapu kaya dan mentega. Minum dengan teh tarik." },
-
   { name: "Nasi Campur (1 lauk)", name_ms: "Nasi Campur (1 lauk)", category: "lunch", bmi_category: "Overweight", calories: 480, protein: 20, carbs: 62, fat: 14, price_rm: 7.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Nasi putih dengan 1 lauk pilihan dan sayur." },
   { name: "Mee Goreng Mamak", name_ms: "Mee Goreng Mamak", category: "lunch", bmi_category: "Overweight", calories: 520, protein: 18, carbs: 70, fat: 18, price_rm: 6.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Goreng mee kuning dengan udang, tauhu, telur dan sos mamak." },
   { name: "Nasi Ayam", name_ms: "Nasi Ayam", category: "lunch", bmi_category: "Overweight", calories: 500, protein: 28, carbs: 58, fat: 15, price_rm: 7.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Nasi ayam hainan standard dengan sup, sos halia dan sos cili." },
   { name: "Laksa Asam", name_ms: "Laksa Asam", category: "lunch", bmi_category: "Overweight", calories: 460, protein: 20, carbs: 64, fat: 12, price_rm: 8.00, budget_category: "sederhana", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Mi laksa dalam kuah asam pedas dengan ikan, timun dan daun kesum." },
   { name: "Chicken Chop with Rice", name_ms: "Chicken Chop dengan Nasi", category: "lunch", bmi_category: "Overweight", calories: 580, protein: 32, carbs: 55, fat: 22, price_rm: 12.00, budget_category: "premium", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Goreng chicken chop. Serve dengan nasi, coleslaw dan sos mushroom." },
-
   { name: "Nasi Goreng Kampung", name_ms: "Nasi Goreng Kampung", category: "dinner", bmi_category: "Overweight", calories: 470, protein: 16, carbs: 60, fat: 17, price_rm: 6.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Goreng nasi dengan ikan bilis, cili, telur dan sayur." },
   { name: "Sup Tulang with Nasi", name_ms: "Sup Tulang dengan Nasi", category: "dinner", bmi_category: "Overweight", calories: 520, protein: 30, carbs: 50, fat: 18, price_rm: 9.00, budget_category: "sederhana", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Rebus tulang lembu dengan rempah dan sayur. Serve dengan nasi." },
   { name: "Ayam Masak Merah with Nasi", name_ms: "Ayam Masak Merah dengan Nasi", category: "dinner", bmi_category: "Overweight", calories: 540, protein: 28, carbs: 58, fat: 18, price_rm: 8.00, budget_category: "sederhana", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Masak ayam dengan sos tomato pedas manis. Serve dengan nasi." },
   { name: "Ikan Goreng with Nasi & Sayur", name_ms: "Ikan Goreng dengan Nasi & Sayur", category: "dinner", bmi_category: "Overweight", calories: 490, protein: 30, carbs: 52, fat: 14, price_rm: 8.00, budget_category: "sederhana", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Goreng ikan dengan kunyit dan garam. Serve dengan nasi dan sayur tumis." },
   { name: "Mee Rebus", name_ms: "Mee Rebus", category: "dinner", bmi_category: "Overweight", calories: 440, protein: 18, carbs: 62, fat: 12, price_rm: 6.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Mee kuning dalam kuah keledek pekat dengan telur rebus dan tauhu." },
-
   { name: "Pisang Goreng", name_ms: "Pisang Goreng", category: "snack", bmi_category: "Overweight", calories: 220, protein: 2, carbs: 38, fat: 8, price_rm: 3.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Celup pisang dalam tepung. Goreng hingga keemasan." },
   { name: "Keropok Lekor", name_ms: "Keropok Lekor", category: "snack", bmi_category: "Overweight", calories: 200, protein: 6, carbs: 32, fat: 6, price_rm: 3.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Keropok lekor goreng atau rebus. Serve dengan sos cili." },
   { name: "Cendol", name_ms: "Cendol", category: "snack", bmi_category: "Overweight", calories: 250, protein: 3, carbs: 52, fat: 5, price_rm: 3.50, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Cendol dengan santan, gula melaka dan ais." },
   { name: "Curry Puff (2pcs)", name_ms: "Karipap (2 biji)", category: "snack", bmi_category: "Overweight", calories: 280, protein: 6, carbs: 36, fat: 13, price_rm: 3.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Karipap inti kentang dan ayam. Goreng atau bakar." },
   { name: "Roti John", name_ms: "Roti John", category: "snack", bmi_category: "Overweight", calories: 320, protein: 14, carbs: 38, fat: 12, price_rm: 5.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Roti baguette dengan telur, daging cincang dan sos." },
-
-  // ============================================================
-  // OBESE + REGULAR (is_pcos_friendly = 0)
-  // ============================================================
-
   { name: "Oat with Low Fat Milk", name_ms: "Oat dengan Susu Rendah Lemak", category: "breakfast", bmi_category: "Obese", calories: 280, protein: 10, carbs: 46, fat: 5, price_rm: 5.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Masak oat dengan susu rendah lemak. Boleh tambah pisang atau madu." },
   { name: "Roti Wholemeal with Egg", name_ms: "Roti Wholemeal dengan Telur", category: "breakfast", bmi_category: "Obese", calories: 300, protein: 16, carbs: 36, fat: 10, price_rm: 5.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Bakar roti wholemeal. Goreng telur separuh masak. Serve bersama." },
   { name: "Congee with Chicken (Bubur Ayam)", name_ms: "Bubur Ayam", category: "breakfast", bmi_category: "Obese", calories: 320, protein: 18, carbs: 48, fat: 6, price_rm: 6.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Masak bubur beras dengan ayam. Perasakan dengan halia dan daun bawang." },
   { name: "Vegetable Soup with Bread", name_ms: "Sup Sayur dengan Roti", category: "breakfast", bmi_category: "Obese", calories: 290, protein: 10, carbs: 44, fat: 7, price_rm: 5.50, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Sup sayur campur dengan lobak, celery dan bawang. Serve dengan roti." },
   { name: "Nasi Lemak Sihat (Kurang Santan)", name_ms: "Nasi Lemak Sihat", category: "breakfast", bmi_category: "Obese", calories: 350, protein: 14, carbs: 50, fat: 10, price_rm: 5.50, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Nasi lemak dengan santan sikit, sambal kurang minyak, telur rebus dan timun." },
-
   { name: "Nasi + Sayur + Ikan Kukus", name_ms: "Nasi + Sayur + Ikan Kukus", category: "lunch", bmi_category: "Obese", calories: 420, protein: 32, carbs: 50, fat: 8, price_rm: 8.00, budget_category: "sederhana", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Nasi putih dengan ikan kukus dan sayur rebus. Rendah minyak." },
   { name: "Grilled Chicken Rice", name_ms: "Nasi Ayam Panggang", category: "lunch", bmi_category: "Obese", calories: 440, protein: 34, carbs: 48, fat: 9, price_rm: 8.00, budget_category: "sederhana", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Ayam panggang tanpa kulit. Serve dengan nasi dan sup." },
   { name: "Yong Tau Foo (soup based)", name_ms: "Yong Tau Foo (berkuah)", category: "lunch", bmi_category: "Obese", calories: 360, protein: 20, carbs: 44, fat: 8, price_rm: 7.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Pilih tauhu dan sayur. Minta kuah sup. Elak sos manis berlebihan." },
   { name: "Wan Tan Mee (soup)", name_ms: "Wantan Mee (berkuah)", category: "lunch", bmi_category: "Obese", calories: 380, protein: 18, carbs: 52, fat: 9, price_rm: 7.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Mee dalam kuah sup dengan wantan dan sayur hijau." },
   { name: "Mixed Veg with Tofu & Brown Rice", name_ms: "Sayur Campur Tauhu & Nasi Perang", category: "lunch", bmi_category: "Obese", calories: 380, protein: 18, carbs: 52, fat: 8, price_rm: 7.50, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Tumis sayur dengan tauhu. Guna minyak sedikit. Serve dengan nasi perang." },
-
   { name: "Steamed Fish with Veg", name_ms: "Ikan Kukus dengan Sayur", category: "dinner", bmi_category: "Obese", calories: 340, protein: 32, carbs: 20, fat: 8, price_rm: 10.00, budget_category: "sederhana", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Kukus ikan dengan halia, kicap rendah sodium. Serve dengan sayur rebus." },
   { name: "Chicken Soup Rice", name_ms: "Nasi Sup Ayam", category: "dinner", bmi_category: "Obese", calories: 380, protein: 28, carbs: 44, fat: 8, price_rm: 8.00, budget_category: "sederhana", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Sup ayam dengan sayur. Serve dengan nasi putih atau nasi perang." },
   { name: "Stir Fry Vegetable with Chicken", name_ms: "Sayur Goreng dengan Ayam", category: "dinner", bmi_category: "Obese", calories: 350, protein: 26, carbs: 24, fat: 14, price_rm: 8.00, budget_category: "sederhana", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Tumis ayam dengan brokoli, kailan, bawang putih. Guna minyak sedikit." },
   { name: "Porridge with Fish", name_ms: "Bubur Ikan", category: "dinner", bmi_category: "Obese", calories: 320, protein: 22, carbs: 42, fat: 5, price_rm: 7.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Masak bubur dengan ikan dan halia. Rendah lemak dan mudah hadam." },
   { name: "Tomato Soup with Wholemeal Bread", name_ms: "Sup Tomato dengan Roti Wholemeal", category: "dinner", bmi_category: "Obese", calories: 300, protein: 10, carbs: 46, fat: 7, price_rm: 7.00, budget_category: "sederhana", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Blend tomato masak dengan bawang dan herbs. Serve dengan roti wholemeal." },
-
   { name: "Buah-buahan Segar", name_ms: "Buah-buahan Segar", category: "snack", bmi_category: "Obese", calories: 120, protein: 1, carbs: 30, fat: 0, price_rm: 3.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Pilih buah-buahan rendah kalori seperti tembikai, betik atau epal." },
   { name: "Low Fat Yogurt", name_ms: "Yogurt Rendah Lemak", category: "snack", bmi_category: "Obese", calories: 140, protein: 8, carbs: 20, fat: 2, price_rm: 4.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Yogurt rendah lemak tanpa perisa. Boleh tambah sedikit buah." },
   { name: "Boiled Corn", name_ms: "Jagung Rebus", category: "snack", bmi_category: "Obese", calories: 160, protein: 4, carbs: 34, fat: 2, price_rm: 2.50, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Rebus jagung dengan sedikit garam. Tanpa mentega." },
   { name: "Cucumber & Tomato Salad", name_ms: "Salad Timun & Tomato", category: "snack", bmi_category: "Obese", calories: 80, protein: 2, carbs: 16, fat: 1, price_rm: 3.00, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Hiris timun dan tomato. Perasakan dengan lemon dan sedikit garam." },
   { name: "Unsalted Crackers with Low Fat Cheese", name_ms: "Krekker Tanpa Garam dengan Keju Rendah Lemak", category: "snack", bmi_category: "Obese", calories: 180, protein: 7, carbs: 24, fat: 6, price_rm: 4.50, budget_category: "ekonomi", is_pcos_friendly: 0, is_low_gi: 0, recipe: "Letak keju rendah lemak atas krekker tanpa garam." },
-
 ];
 
-// ── INSERT ALL ──
-const stmt = db.prepare(`
-  INSERT INTO recipes 
-  (name, name_ms, category, bmi_category, calories, protein, carbs, fat, price_rm, budget_category, is_pcos_friendly, is_low_gi, recipe)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-`);
+const run = async () => {
+  let inserted = 0;
+  let skipped = 0;
 
-let inserted = 0;
-let skipped  = 0;
+  for (const m of meals) {
+    const check = await pool.query(
+      `SELECT id FROM recipes WHERE name = $1 AND bmi_category = $2 AND is_pcos_friendly = $3`,
+      [m.name, m.bmi_category, m.is_pcos_friendly]
+    );
 
-meals.forEach(m => {
-  // Check duplicate by name + bmi_category + is_pcos_friendly
-  db.get(
-    `SELECT id FROM recipes WHERE name = ? AND bmi_category = ? AND is_pcos_friendly = ?`,
-    [m.name, m.bmi_category, m.is_pcos_friendly],
-    (err, row) => {
-      if (row) {
-        skipped++;
-        return;
-      }
-      stmt.run(
-        m.name, m.name_ms, m.category, m.bmi_category,
-        m.calories, m.protein, m.carbs, m.fat,
-        m.price_rm, m.budget_category, m.is_pcos_friendly, m.is_low_gi,
-        m.recipe,
-        function(err) {
-          if (err) {
-            console.error(`❌ Failed: ${m.name}`, err.message);
-          } else {
-            inserted++;
-            console.log(`✅ [${m.bmi_category}][PCOS:${m.is_pcos_friendly}] ${m.name}`);
-          }
-        }
-      );
+    if (check.rows.length > 0) {
+      skipped++;
+      continue;
     }
-  );
-});
 
+    await pool.query(
+      `INSERT INTO recipes (name, name_ms, category, bmi_category, calories, protein, carbs, fat, price_rm, budget_category, is_pcos_friendly, is_low_gi, recipe)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
+      [m.name, m.name_ms, m.category, m.bmi_category, m.calories, m.protein, m.carbs, m.fat, m.price_rm, m.budget_category, m.is_pcos_friendly, m.is_low_gi, m.recipe]
+    );
+
+    inserted++;
+    console.log(`✅ [${m.bmi_category}][PCOS:${m.is_pcos_friendly}] ${m.name}`);
+  }
+
+  console.log(`\nDone: ${inserted} inserted, ${skipped} skipped`);
+  process.exit(0);
+};
+
+run().catch(err => {
+  console.error('❌ Error:', err);
+  process.exit(1);
+});

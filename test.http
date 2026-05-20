@@ -1,0 +1,30 @@
+### Test 1: Basic Connection
+POST https://cadburwin.app.n8n.cloud/webhook/7840a413-45af-48b4-846b-b56bebad883b/chat
+Content-Type: application/json
+
+{
+  "message": "hello from vscode",
+  "action": "test"
+}
+
+###
+
+### Test 2: Format Action
+POST https://cadburwin.app.n8n.cloud/webhook/7840a413-45af-48b4-846b-b56bebad883b/chat
+Content-Type: application/json
+
+{
+  "message": "hello world",
+  "action": "format"
+}
+
+###
+
+### Test 3: Reverse Action
+POST https://cadburwin.app.n8n.cloud/webhook/7840a413-45af-48b4-846b-b56bebad883b/chat
+Content-Type: application/json
+
+{
+  "message": "testing 123",
+  "action": "reverse"
+}

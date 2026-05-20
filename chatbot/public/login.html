@@ -99,6 +99,7 @@
             font-weight: 600;
             color: #666;
             transition: all 0.3s;
+            pointer-events: auto;
         }
 
         .role-tab:hover {
@@ -188,9 +189,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.3s;
-            pointer-events: auto;
-            z-index: 9999;
-            position: relative;
         }
 
         .login-btn:hover {
@@ -232,6 +230,7 @@
             border: 1px solid #66bb6a;
         }
 
+        /* ===== MOBILE RESPONSIVE ===== */
         @media (max-width: 768px) {
             .login-container {
                 grid-template-columns: 1fr;
@@ -248,49 +247,7 @@
             .login-left .icon {
                 font-size: 3rem;
             }
-            .login-left {
-                pointer-events: none;
-            }
-
-            .login-right {
-                position: relative;
-                z-index: 5;
-            }
-
-            .login-btn {
-                position: relative;
-                z-index: 999;
-                pointer-events: auto;
-            }
-            /* role tabs JANGAN block click bawah */
-.role-tabs {
-  position: relative;
-  z-index: 1;
-  pointer-events: none;
-}
-
-/* TAPI tab masih boleh klik */
-.role-tab {
-  position: relative;
-  z-index: 1;
-}
-
-}
-
-/* FORM & BUTTON naik atas role tabs */
-#loginForm {
-  position: relative;
-  z-index: 5;
-}
-
-.login-btn {
-  pointer-events: auto !important;
-  z-index: 9999 !important;
-  position: relative;
-}
-
-
-        
+        }
     </style>
 </head>
 
@@ -313,12 +270,12 @@
 
         <!-- ROLE SELECTION -->
         <div class="role-tabs">
-        <div class="role-tab active" onclick="selectRole('user', this)">
-        👤 User
-        </div>
-        <div class="role-tab" onclick="selectRole('admin', this)">
-        🔐 Admin
-        </div>
+            <div class="role-tab active" onclick="selectRole('user', this)">
+                👤 User
+            </div>
+            <div class="role-tab" onclick="selectRole('admin', this)">
+                🔐 Admin
+            </div>
         </div>
 
         <!-- ALERT MESSAGE -->
@@ -355,75 +312,57 @@
         </div>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-function showError(message) {
-  Swal.fire({
-    icon: "error",
-    title: "Login Failed",
-    text: message,
-    confirmButtonColor: "#667eea"
-  });
-}
+    let selectedRole = 'user';
 
-function showSuccess(message) {
-  Swal.fire({
-    icon: "success",
-    title: "Success",
-    text: message,
-    confirmButtonColor: "#667eea"
-  });
-}
+    function selectRole(role, el) {
+        selectedRole = role;
+        document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+    }
 
-function selectRole(role, el) {
-  document.querySelectorAll(".role-tab")
-    .forEach(t => t.classList.remove("active"));
-  el.classList.add("active");
-}
+    function togglePassword() {
+        const input = document.getElementById('password');
+        input.type = input.type === 'password' ? 'text' : 'password';
+    }
 
-function togglePassword() {
-  const input = document.getElementById("password");
-  input.type = input.type === "password" ? "text" : "password";
-}
+    async function handleLogin(e) {
+        e.preventDefault();
 
-async function handleLogin(e) {
-  e.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
+        try {
+            const res = await fetch('http://localhost:3000/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
 
-  try {
-    const res = await fetch("http://localhost:3000/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
+            if (!res.ok) throw new Error();
 
-    if (!res.ok) throw new Error();
+            const user = await res.json();
 
-    const user = await res.json();
+            localStorage.setItem('loggedIn', 'true');
+            localStorage.setItem('userRole', user.role);
+            localStorage.setItem('userId', user.id);
+            localStorage.setItem('user_email', user.email);
 
-    // simpan SESSION sahaja
-    localStorage.setItem("loggedIn", "true");
-    localStorage.setItem("userRole", user.role);
-    localStorage.setItem("userId", user.id);
-    localStorage.setItem("user_email", user.email);
+            Swal.fire('Success 🎉', 'Login successful', 'success');
 
-    Swal.fire("Success 🎉", "Login successful", "success");
+            setTimeout(() => {
+                window.location.href =
+                    user.role === 'admin'
+                        ? 'admindashboard.html'
+                        : 'index.html';
+            }, 1000);
 
-    setTimeout(() => {
-      window.location.href =
-        user.role === "admin"
-          ? "admindashboard.html"
-          : "index.html";
-    }, 1000);
-
-  } catch {
-    Swal.fire("Login Failed ❌", "Wrong email or password", "error");
-  }
-}
-
-
+        } catch {
+            Swal.fire('Login Failed ❌', 'Wrong email or password', 'error');
+        }
+    }
 </script>
 
 </body>

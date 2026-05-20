@@ -50,25 +50,24 @@ const initDB = async () => {
     `);
 
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS recipes (
-        id SERIAL PRIMARY KEY,
-        name TEXT,
-        name_ms TEXT,
-        category TEXT,
-        bmi_category TEXT,
-        calories INTEGER,
-        protein REAL,
-        carbs REAL,
-        fat REAL,
-        price_rm REAL,
-        budget_category TEXT,
-        is_pcos_friendly INTEGER DEFAULT 0,
-        is_low_gi INTEGER DEFAULT 0,
-        cuisine_type TEXT,
-        recipe TEXT
-      )
-    `);
-
+  CREATE TABLE IF NOT EXISTS recipes (
+    id SERIAL PRIMARY KEY,
+    name TEXT,
+    name_ms TEXT,
+    category TEXT,
+    bmi_category TEXT,
+    calories INTEGER,
+    protein REAL,
+    carbs REAL,
+    fat REAL,
+    price_rm REAL,
+    budget_category TEXT,
+    is_pcos_friendly INTEGER DEFAULT 0,
+    is_low_gi INTEGER DEFAULT 0,
+    cuisine_type TEXT,
+    recipe TEXT
+  )
+`);
     console.log("✅ All tables ready");
   } catch (err) {
     console.error("❌ DB init error:", err);

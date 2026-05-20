@@ -1,0 +1,20 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Send to n8n",
+      "type": "shell",
+      "command": "curl",
+      "args": [
+        "-X", "POST",
+        "https://cadburwin.app.n8n.cloud/webhook/7840a413-45af-48b4-846b-b56bebad883b/chat",
+        "-H", "Content-Type: application/json",
+        "-d", "{\"message\":\"${selectedText}\",\"action\":\"format\"}"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    }
+  ]
+}
