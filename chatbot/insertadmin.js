@@ -4,22 +4,44 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-const fix = async () => {
-  await pool.query(`DROP TABLE IF EXISTS users CASCADE`);
+const setup = async () => {
+  // Semak table apa ada
+  const tables = await pool.query(`
+    SELECT table_name FROM information_schema.tables 
+    WHERE table_schema = 'public'
+  `);
+  console.log('Tables:', tables.rows.map(r => r.table_name));
+
+  // Create bmi_records kalau takde
   await pool.query(`
-    CREATE TABLE users (
+    CREATE TABLE IF NOT EXISTS bmi_records (
       id SERIAL PRIMARY KEY,
-      email TEXT UNIQUE NOT NULL,
-      password TEXT NOT NULL,
-      role TEXT DEFAULT 'user'
+      user_email TEXT,
+      height REAL,
+      weight REAL,
+      bmi REAL,
+      category TEXT,
+      date TEXT
     )
   `);
+
+  // Create food_records kalau takde
   await pool.query(`
-    INSERT INTO users (email, password, role)
-    VALUES ('admin@healthymenu.com', 'admin123', 'admin')
+    CREATE TABLE IF NOT EXISTS food_records (
+      id SERIAL PRIMARY KEY,
+      user_email TEXT,
+      date TEXT,
+      meal_type TEXT,
+      food_name TEXT,
+      calories INTEGER,
+      carbs INTEGER,
+      protein INTEGER,
+      fat INTEGER
+    )
   `);
-  console.log('Done!');
+
+  console.log('Done! All tables created.');
   pool.end();
 };
 
-fix().catch(e => { console.log('Error:', e); pool.end(); });
+setup().catch(e => { console.log('Error:', e); pool.end(); });

@@ -4,7 +4,7 @@ const db = require("../db");
 
 router.get("/user-count", async (req, res) => {
   try {
-    const result = await db.query("SELECT COUNT(*) AS total FROM users");
+    const result = await db.query("SELECT COUNT(*) AS total FROM hm_users");
     res.json({ total: result.rows[0].total });
   } catch (err) {
     res.status(500).json({ error: "DB error" });
@@ -17,7 +17,7 @@ router.get("/avg-calories", async (req, res) => {
       SELECT ROUND(AVG(total_calories), 0) AS avgcalories
       FROM (
         SELECT user_email, SUM(calories) AS total_calories
-        FROM food_records
+        FROM hm_food_records
         GROUP BY user_email
       ) sub
     `);
@@ -29,7 +29,7 @@ router.get("/avg-calories", async (req, res) => {
 
 router.get("/users", async (req, res) => {
   try {
-    const result = await db.query("SELECT id, email, role FROM users ORDER BY id DESC");
+    const result = await db.query("SELECT id, email, role FROM hm_users ORDER BY id DESC");
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: "DB error" });
@@ -38,7 +38,7 @@ router.get("/users", async (req, res) => {
 
 router.get("/bmi", async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM bmi_records ORDER BY date DESC");
+    const result = await db.query("SELECT * FROM hm_bmi_records ORDER BY date DESC");
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: "DB error" });
