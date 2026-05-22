@@ -343,7 +343,7 @@ const seedRecipes = async () => {
 
     for (const m of allMeals) {
       const existing = await client.query(
-        `SELECT id FROM hm_recipes WHERE name = $1 AND bmi_category = $2 AND is_pcos_friendly = $3`,
+        `SELECT id FROM recipes WHERE name = $1 AND bmi_category = $2 AND is_pcos_friendly = $3`,
         [m.name, m.bmi_category, m.is_pcos_friendly]
       );
 
@@ -353,7 +353,7 @@ const seedRecipes = async () => {
       }
 
       await client.query(
-        `INSERT INTO hm_recipes 
+        `INSERT INTO recipes 
          (name, name_ms, category, bmi_category, calories, protein, carbs, fat, price_rm, budget_category, is_pcos_friendly, is_low_gi, cuisine_type, recipe)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`,
         [m.name, m.name_ms, m.category, m.bmi_category, m.calories, m.protein, m.carbs, m.fat,

@@ -10,7 +10,7 @@ router.post("/", async (req, res) => {
   const date = new Date().toISOString().split("T")[0];
   try {
     const result = await db.query(
-      `INSERT INTO hm_bmi_records (user_email, height, weight, bmi, category, date)
+      `INSERT INTO bmi_records (user_email, height, weight, bmi, category, date)
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       [user_email, height, weight, bmi, category, date]
     );
@@ -27,7 +27,7 @@ router.get("/latest", async (req, res) => {
 
   try {
     const result = await db.query(
-      `SELECT * FROM hm_bmi_records WHERE user_email = $1 ORDER BY date DESC LIMIT 1`,
+      `SELECT * FROM bmi_records WHERE user_email = $1 ORDER BY date DESC LIMIT 1`,
       [email]
     );
     if (result.rows.length === 0) return res.status(404).json({ error: "No BMI record found" });

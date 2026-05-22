@@ -13,10 +13,10 @@ app.use(express.static(path.join(__dirname, "public")));
 // AUTO-SEED
 const autoSeed = async () => {
   try {
-    const result = await db.query("SELECT COUNT(*) as count FROM hm_recipes");
+    const result = await db.query("SELECT COUNT(*) as count FROM recipes");
     if (parseInt(result.rows[0].count) === 0) {
       console.log("🌱 Seeding recipes...");
-      require("./seed-pg");
+      console.log("✅ Skipping auto-seed");
     } else {
       console.log("✅ Recipes already seeded:", result.rows[0].count);
     }
@@ -42,7 +42,7 @@ app.post("/food", async (req, res) => {
   const { user_email, date, mealType, foodName, calories, carbs, protein, fat } = req.body;
   try {
     const result = await db.query(
-      `INSERT INTO hm_food_records (user_email, date, meal_type, food_name, calories, carbs, protein, fat)
+      `INSERT INTO food_records (user_email, date, meal_type, food_name, calories, carbs, protein, fat)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
       [user_email, date, mealType, foodName, calories, carbs, protein, fat]
     );
@@ -55,7 +55,7 @@ app.post("/food", async (req, res) => {
 
 app.get("/food", async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM hm_food_records");
+    const result = await db.query("SELECT * FROM food_records");
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: "Failed to fetch food records" });
@@ -65,7 +65,7 @@ app.get("/food", async (req, res) => {
 app.delete("/food/:id", async (req, res) => {
   if (req.headers["x-admin-key"] !== "admin123") return res.status(403).json({ error: "Admin only" });
   try {
-    await db.query("DELETE FROM hm_food_records WHERE id = $1", [req.params.id]);
+    await db.query("DELETE FROM food_records WHERE id = $1", [req.params.id]);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: "Failed to delete" });
@@ -75,7 +75,7 @@ app.delete("/food/:id", async (req, res) => {
 app.get("/debug/bmi/:email", async (req, res) => {
   try {
     const result = await db.query(
-      "SELECT * FROM hm_bmi_records WHERE user_email = $1 ORDER BY date DESC",
+      "SELECT * FROM bmi_records WHERE user_email = $1 ORDER BY date DESC",
       [req.params.email]
     );
     res.json({ email: req.params.email, count: result.rows.length, records: result.rows });

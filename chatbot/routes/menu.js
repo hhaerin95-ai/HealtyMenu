@@ -18,7 +18,7 @@ router.get("/7-day-plan", async (req, res) => {
   else if (bmiValue < 30) bmiCategory = "Overweight";
   else bmiCategory = "Obese";
 
-  let query = `SELECT * FROM hm_recipes WHERE bmi_category = $1`;
+  let query = `SELECT * FROM recipes WHERE bmi_category = $1`;
   const params = [bmiCategory];
   let i = 2;
 
