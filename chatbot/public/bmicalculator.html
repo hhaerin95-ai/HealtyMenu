@@ -579,7 +579,8 @@
             });
 
             // Update language button
-            document.getElementById('langBtn').textContent = currentLang === 'en' ? '🌐 EN' : '🌐 BM';
+            const langBtn = document.getElementById('langBtn');
+if (langBtn) langBtn.textContent = currentLang === 'en' ? '🌐 EN' : '🌐 BM';
         }
 
         // TOGGLE LANGUAGE
