@@ -5,11 +5,10 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// CREATE TABLES
 const initDB = async () => {
   try {
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS users (
+      CREATE TABLE IF NOT EXISTS hm_users (
         id SERIAL PRIMARY KEY,
         email TEXT UNIQUE,
         password TEXT,
@@ -18,13 +17,13 @@ const initDB = async () => {
     `);
 
     await pool.query(`
-      INSERT INTO users (email, password, role)
+      INSERT INTO hm_users (email, password, role)
       VALUES ('admin@healthymenu.com', 'admin123', 'admin')
       ON CONFLICT (email) DO NOTHING
     `);
 
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS food_records (
+      CREATE TABLE IF NOT EXISTS hm_food_records (
         id SERIAL PRIMARY KEY,
         user_email TEXT,
         date TEXT,
@@ -38,7 +37,7 @@ const initDB = async () => {
     `);
 
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS bmi_records (
+      CREATE TABLE IF NOT EXISTS hm_bmi_records (
         id SERIAL PRIMARY KEY,
         user_email TEXT,
         height REAL,
@@ -50,24 +49,25 @@ const initDB = async () => {
     `);
 
     await pool.query(`
-  CREATE TABLE IF NOT EXISTS recipes (
-    id SERIAL PRIMARY KEY,
-    name TEXT,
-    name_ms TEXT,
-    category TEXT,
-    bmi_category TEXT,
-    calories INTEGER,
-    protein REAL,
-    carbs REAL,
-    fat REAL,
-    price_rm REAL,
-    budget_category TEXT,
-    is_pcos_friendly INTEGER DEFAULT 0,
-    is_low_gi INTEGER DEFAULT 0,
-    cuisine_type TEXT,
-    recipe TEXT
-  )
-`);
+      CREATE TABLE IF NOT EXISTS hm_recipes (
+        id SERIAL PRIMARY KEY,
+        name TEXT,
+        name_ms TEXT,
+        category TEXT,
+        bmi_category TEXT,
+        calories INTEGER,
+        protein REAL,
+        carbs REAL,
+        fat REAL,
+        price_rm REAL,
+        budget_category TEXT,
+        is_pcos_friendly INTEGER DEFAULT 0,
+        is_low_gi INTEGER DEFAULT 0,
+        cuisine_type TEXT,
+        recipe TEXT
+      )
+    `);
+
     console.log("✅ All tables ready");
   } catch (err) {
     console.error("❌ DB init error:", err);
